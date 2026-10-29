@@ -1,0 +1,687 @@
+from typing import List, Dict, Any, Optional
+from models import Ingredient, Recipe, RecipeIngredient, MealPlan, MealPlanDay, MealPlanSlot, PantryItem
+
+INGREDIENT_CATEGORIES = [
+    {"id": "vegetables", "name": "Vegetables", "icon": "Carrot"},
+    {"id": "fruits", "name": "Fruits", "icon": "Apple"},
+    {"id": "spices", "name": "Herbs & Spices", "icon": "Flame"},
+    {"id": "grains", "name": "Grains & Cereals", "icon": "Wheat"},
+    {"id": "pulses", "name": "Pulses & Legumes", "icon": "Bean"},
+    {"id": "dairy", "name": "Dairy & Alternatives", "icon": "Milk"},
+    {"id": "meat_eggs", "name": "Meat, Eggs & Seafood", "icon": "Egg"},
+    {"id": "nuts_seeds", "name": "Nuts & Seeds", "icon": "Nut"},
+    {"id": "oils_sauces", "name": "Oils & Condiments", "icon": "Droplet"},
+    {"id": "baking_other", "name": "Baking & Pantry Staples", "icon": "Package"}
+]
+
+INGREDIENTS_DB: List[Ingredient] = [
+    # Grains & Cereals
+    Ingredient(id="rice", name="Rice", category="grains", aliases=["raw rice", "basmati", "sona masoori", "arisi", "chawal"], unit_default="g", estimated_price_per_unit_inr=0.06),
+    Ingredient(id="oats", name="Oats", category="grains", aliases=["rolled oats", "quick oats"], unit_default="g", estimated_price_per_unit_inr=0.15),
+    Ingredient(id="wheat_flour", name="Wheat Flour / Atta", category="grains", aliases=["atta", "godhumai maavu", "flour"], unit_default="g", estimated_price_per_unit_inr=0.05),
+    Ingredient(id="semolina", name="Semolina / Rava", category="grains", aliases=["rava", "sooji", "suji"], unit_default="g", estimated_price_per_unit_inr=0.07),
+    Ingredient(id="pasta", name="Pasta", category="grains", aliases=["penne", "spaghetti", "macaroni"], unit_default="g", estimated_price_per_unit_inr=0.12),
+    Ingredient(id="noodles", name="Noodles", category="grains", aliases=["hakka noodles", "egg noodles", "ramen"], unit_default="g", estimated_price_per_unit_inr=0.10),
+    Ingredient(id="bread", name="Bread", category="grains", aliases=["white bread", "brown bread", "sliced bread"], unit_default="slices", estimated_price_per_unit_inr=3.0),
+    Ingredient(id="quinoa", name="Quinoa", category="grains", aliases=["organic quinoa"], unit_default="g", estimated_price_per_unit_inr=0.40),
+
+    # Meat & Eggs
+    Ingredient(id="egg", name="Egg", category="meat_eggs", aliases=["eggs", "muttai", "anda"], unit_default="pieces", estimated_price_per_unit_inr=7.0),
+    Ingredient(id="chicken", name="Chicken", category="meat_eggs", aliases=["chicken breast", "kozhi", "murgh"], unit_default="g", estimated_price_per_unit_inr=0.26),
+    Ingredient(id="prawns", name="Prawns / Shrimp", category="meat_eggs", aliases=["shrimp", "iraal", "jheenga"], unit_default="g", estimated_price_per_unit_inr=0.50),
+    Ingredient(id="fish_fillet", name="Fish Fillet", category="meat_eggs", aliases=["fish", "meen", "machli"], unit_default="g", estimated_price_per_unit_inr=0.40),
+
+    # Vegetables
+    Ingredient(id="tomato", name="Tomato", category="vegetables", aliases=["tomatoes", "thakkali", "tamatar"], unit_default="g", estimated_price_per_unit_inr=0.04),
+    Ingredient(id="onion", name="Onion", category="vegetables", aliases=["onions", "vengayam", "pyaz", "shallots"], unit_default="g", estimated_price_per_unit_inr=0.04),
+    Ingredient(id="potato", name="Potato", category="vegetables", aliases=["potatoes", "urulaikizhangu", "aloo"], unit_default="g", estimated_price_per_unit_inr=0.035),
+    Ingredient(id="garlic", name="Garlic", category="vegetables", aliases=["garlic cloves", "poondu", "lehsun"], unit_default="cloves", estimated_price_per_unit_inr=2.0),
+    Ingredient(id="ginger", name="Ginger", category="vegetables", aliases=["fresh ginger", "inji", "adrak"], unit_default="g", estimated_price_per_unit_inr=0.12),
+    Ingredient(id="green_chilli", name="Green Chilli", category="vegetables", aliases=["chilli", "pachai milagai", "hari mirch"], unit_default="pieces", estimated_price_per_unit_inr=1.5),
+    Ingredient(id="carrot", name="Carrot", category="vegetables", aliases=["carrots", "gajar"], unit_default="g", estimated_price_per_unit_inr=0.05),
+    Ingredient(id="capsicum", name="Capsicum / Bell Pepper", category="vegetables", aliases=["bell pepper", "shimla mirch", "kudai milagai"], unit_default="g", estimated_price_per_unit_inr=0.08),
+    Ingredient(id="spinach", name="Spinach", category="vegetables", aliases=["palak", "pasalai keerai", "keerai"], unit_default="g", estimated_price_per_unit_inr=0.06),
+    Ingredient(id="cabbage", name="Cabbage", category="vegetables", aliases=["patta gobhi", "muttakos"], unit_default="g", estimated_price_per_unit_inr=0.03),
+    Ingredient(id="cauliflower", name="Cauliflower", category="vegetables", aliases=["gobi", "phool gobhi"], unit_default="g", estimated_price_per_unit_inr=0.05),
+    Ingredient(id="green_peas", name="Green Peas", category="vegetables", aliases=["peas", "matar", "pattani"], unit_default="g", estimated_price_per_unit_inr=0.08),
+    Ingredient(id="mushroom", name="Mushroom", category="vegetables", aliases=["button mushroom", "kalan", "khumb"], unit_default="g", estimated_price_per_unit_inr=0.20),
+    Ingredient(id="cucumber", name="Cucumber", category="vegetables", aliases=["kheera", "vellarikkai"], unit_default="g", estimated_price_per_unit_inr=0.04),
+    Ingredient(id="brinjal", name="Brinjal / Eggplant", category="vegetables", aliases=["eggplant", "kathirikkai", "baingan"], unit_default="g", estimated_price_per_unit_inr=0.04),
+    Ingredient(id="okra", name="Okra / Ladies Finger", category="vegetables", aliases=["vendakkai", "bhindi"], unit_default="g", estimated_price_per_unit_inr=0.05),
+
+    # Herbs & Spices
+    Ingredient(id="chilli_powder", name="Chilli Powder", category="spices", aliases=["red chilli powder", "milagai thool", "lal mirch powder"], unit_default="tsp", estimated_price_per_unit_inr=2.0),
+    Ingredient(id="turmeric", name="Turmeric Powder", category="spices", aliases=["manjal thool", "haldi"], unit_default="tsp", estimated_price_per_unit_inr=1.5),
+    Ingredient(id="coriander", name="Fresh Coriander", category="spices", aliases=["coriander leaves", "cilantro", "kothamalli", "dhaniya patta"], unit_default="sprigs", estimated_price_per_unit_inr=5.0),
+    Ingredient(id="coriander_powder", name="Coriander Powder", category="spices", aliases=["dhaniya powder", "malli thool"], unit_default="tsp", estimated_price_per_unit_inr=2.0),
+    Ingredient(id="cumin_seeds", name="Cumin Seeds", category="spices", aliases=["jeera", "seeragam"], unit_default="tsp", estimated_price_per_unit_inr=2.0),
+    Ingredient(id="mustard_seeds", name="Mustard Seeds", category="spices", aliases=["kadugu", "rai"], unit_default="tsp", estimated_price_per_unit_inr=1.5),
+    Ingredient(id="curry_leaves", name="Curry Leaves", category="spices", aliases=["kariveppilai", "kadi patta"], unit_default="sprigs", estimated_price_per_unit_inr=2.0),
+    Ingredient(id="garam_masala", name="Garam Masala", category="spices", aliases=["all-spice"], unit_default="tsp", estimated_price_per_unit_inr=3.0),
+    Ingredient(id="black_pepper", name="Black Pepper", category="spices", aliases=["milagu", "kali mirch"], unit_default="tsp", estimated_price_per_unit_inr=3.0),
+    Ingredient(id="cinnamon", name="Cinnamon Stick", category="spices", aliases=["pattai", "dalchini"], unit_default="piece", estimated_price_per_unit_inr=4.0),
+    Ingredient(id="oregano", name="Dried Oregano", category="spices", aliases=["pizza seasoning", "italian herbs"], unit_default="tsp", estimated_price_per_unit_inr=4.0),
+    Ingredient(id="basil", name="Fresh Basil", category="spices", aliases=["sweet basil", "tulsi"], unit_default="leaves", estimated_price_per_unit_inr=5.0),
+
+    # Pulses & Legumes
+    Ingredient(id="toor_dal", name="Toor Dal / Pigeon Pea", category="pulses", aliases=["tuvar dal", "thuvaram paruppu", "arhar dal"], unit_default="g", estimated_price_per_unit_inr=0.16),
+    Ingredient(id="moong_dal", name="Moong Dal / Yellow Lentils", category="pulses", aliases=["paasi paruppu", "mung dal"], unit_default="g", estimated_price_per_unit_inr=0.14),
+    Ingredient(id="chickpeas", name="Chickpeas / Chana", category="pulses", aliases=["white chana", "kondakadalai", "kabuli chana", "garbanzo"], unit_default="g", estimated_price_per_unit_inr=0.15),
+    Ingredient(id="kidney_beans", name="Kidney Beans / Rajma", category="pulses", aliases=["rajma", "red beans"], unit_default="g", estimated_price_per_unit_inr=0.16),
+    Ingredient(id="urad_dal", name="Urad Dal / Black Gram", category="pulses", aliases=["ulutham paruppu"], unit_default="g", estimated_price_per_unit_inr=0.15),
+
+    # Dairy & Alternatives
+    Ingredient(id="milk", name="Milk", category="dairy", aliases=["cow milk", "paal", "doodh"], unit_default="ml", estimated_price_per_unit_inr=0.06),
+    Ingredient(id="curd", name="Curd / Yogurt", category="dairy", aliases=["yogurt", "thayir", "dahi"], unit_default="g", estimated_price_per_unit_inr=0.08),
+    Ingredient(id="paneer", name="Paneer / Cottage Cheese", category="dairy", aliases=["cottage cheese", "indian cheese"], unit_default="g", estimated_price_per_unit_inr=0.45),
+    Ingredient(id="butter", name="Butter", category="dairy", aliases=["vennai", "makhan"], unit_default="g", estimated_price_per_unit_inr=0.60),
+    Ingredient(id="ghee", name="Ghee / Clarified Butter", category="dairy", aliases=["nei"], unit_default="tsp", estimated_price_per_unit_inr=6.0),
+    Ingredient(id="cheese", name="Cheese", category="dairy", aliases=["cheddar", "mozzarella", "cheese slice"], unit_default="g", estimated_price_per_unit_inr=0.75),
+    Ingredient(id="tofu", name="Tofu", category="dairy", aliases=["bean curd", "soy paneer"], unit_default="g", estimated_price_per_unit_inr=0.35),
+
+    # Oils & Condiments
+    Ingredient(id="cooking_oil", name="Cooking Oil", category="oils_sauces", aliases=["oil", "sunflower oil", "ennae", "tel"], unit_default="tbsp", estimated_price_per_unit_inr=3.0),
+    Ingredient(id="soy_sauce", name="Soy Sauce", category="oils_sauces", aliases=["dark soy sauce", "light soy sauce"], unit_default="tbsp", estimated_price_per_unit_inr=4.0),
+    Ingredient(id="vinegar", name="Vinegar", category="oils_sauces", aliases=["white vinegar", "apple cider vinegar"], unit_default="tbsp", estimated_price_per_unit_inr=2.5),
+    Ingredient(id="olive_oil", name="Olive Oil", category="oils_sauces", aliases=["extra virgin olive oil"], unit_default="tbsp", estimated_price_per_unit_inr=12.0),
+    Ingredient(id="sesame_oil", name="Sesame Oil / Gingelly Oil", category="oils_sauces", aliases=["nallennai", "til tel"], unit_default="tbsp", estimated_price_per_unit_inr=8.0),
+
+    # Fruits
+    Ingredient(id="lemon", name="Lemon", category="fruits", aliases=["lime", "elumichai", "nimbu"], unit_default="piece", estimated_price_per_unit_inr=5.0),
+    Ingredient(id="banana", name="Banana", category="fruits", aliases=["vazhaipazham", "kela"], unit_default="pieces", estimated_price_per_unit_inr=6.0),
+    Ingredient(id="apple", name="Apple", category="fruits", aliases=["seb"], unit_default="pieces", estimated_price_per_unit_inr=25.0),
+    Ingredient(id="coconut", name="Coconut (Grated/Fresh)", category="fruits", aliases=["thengai", "nariyal"], unit_default="g", estimated_price_per_unit_inr=0.10),
+
+    # Nuts & Seeds
+    Ingredient(id="peanuts", name="Peanuts", category="nuts_seeds", aliases=["groundnuts", "verkadalai", "moongphali"], unit_default="g", estimated_price_per_unit_inr=0.18),
+    Ingredient(id="cashews", name="Cashews", category="nuts_seeds", aliases=["mundhiri", "kaju"], unit_default="g", estimated_price_per_unit_inr=0.95),
+]
+
+RECIPES_DB: List[Recipe] = [
+    Recipe(
+        id="egg-fried-rice",
+        title="Egg Fried Rice",
+        description="A quick and tasty fried rice with eggs, fragrant garlic, and stir-fried vegetables.",
+        cuisine="East Asian",
+        country="China",
+        dish_type="Lunch / Dinner",
+        prep_time_minutes=10,
+        cook_time_minutes=15,
+        difficulty="Easy",
+        servings=2,
+        estimated_total_cost_inr=85.0,
+        estimated_cost_per_serving_inr=42.5,
+        dietary_labels=["Dairy-Free", "High-Protein"],
+        image_url="https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80",
+        ingredients=[
+            RecipeIngredient(name="Rice (Cooked or Day-old)", quantity=300, unit="g", estimated_cost_inr=20.0, substitutions=["Brown rice", "Quinoa", "Cauliflower rice"]),
+            RecipeIngredient(name="Egg", quantity=3, unit="pieces", estimated_cost_inr=21.0, substitutions=["Tofu (for vegan)", "Paneer"]),
+            RecipeIngredient(name="Onion", quantity=100, unit="g", estimated_cost_inr=5.0),
+            RecipeIngredient(name="Garlic", quantity=4, unit="cloves", estimated_cost_inr=8.0),
+            RecipeIngredient(name="Soy Sauce", quantity=2, unit="tbsp", estimated_cost_inr=8.0, substitutions=["Tamari", "Salt with dash of lemon"]),
+            RecipeIngredient(name="Cooking Oil", quantity=2, unit="tbsp", estimated_cost_inr=6.0),
+            RecipeIngredient(name="Green Chilli or Pepper", quantity=2, unit="pieces", estimated_cost_inr=3.0),
+            RecipeIngredient(name="Carrot", quantity=60, unit="g", estimated_cost_inr=4.0, is_optional=True),
+            RecipeIngredient(name="Fresh Coriander or Spring Onion", quantity=1, unit="sprig", estimated_cost_inr=5.0, is_optional=True),
+        ],
+        instructions=[
+            "Fluff up the cooked rice (day-old cold rice yields the best texture and won't get mushy).",
+            "Heat 1 tablespoon oil in a wide wok or pan over high heat. Crack the eggs directly in, scramble lightly until 80% cooked, then remove to a plate.",
+            "In the same wok, add remaining oil and sauté chopped garlic, onion, and green chillies for 1 minute until fragrant.",
+            "Toss in carrots or other veggies and stir-fry briskly for 2 minutes on high flame to maintain crunch.",
+            "Add the rice, soy sauce, and a pinch of salt and black pepper. Stir-fry rapidly for 2-3 minutes until heated through and coated.",
+            "Fold in the scrambled eggs and garnish with fresh coriander or spring onion greens. Serve piping hot!"
+        ],
+        tips=[
+            "Always use chilled or day-old cooked rice to prevent moisture sogginess.",
+            "High heat stir-frying imparts the authentic wok-hei aroma.",
+            "Feel free to toss in any leftover veggies like peas, corn, or cabbage."
+        ],
+        safety_advice="Consume immediately after cooking or refrigerate within 2 hours. When reheating rice, ensure it is heated until steaming hot.",
+        source="curated"
+    ),
+    Recipe(
+        id="tomato-egg-curry",
+        title="Tomato Egg Curry",
+        description="Rich, flavourful and goes well with rice or chapati. Tangy tomatoes stewed with aromatic spices.",
+        cuisine="South Indian",
+        country="India",
+        dish_type="Lunch / Dinner",
+        prep_time_minutes=8,
+        cook_time_minutes=12,
+        difficulty="Medium",
+        servings=2,
+        estimated_total_cost_inr=75.0,
+        estimated_cost_per_serving_inr=37.5,
+        dietary_labels=["Gluten-Free", "High-Protein", "Dairy-Free"],
+        image_url="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=80",
+        ingredients=[
+            RecipeIngredient(name="Egg (Boiled)", quantity=4, unit="pieces", estimated_cost_inr=28.0),
+            RecipeIngredient(name="Tomato", quantity=250, unit="g", estimated_cost_inr=12.0),
+            RecipeIngredient(name="Onion", quantity=150, unit="g", estimated_cost_inr=8.0),
+            RecipeIngredient(name="Ginger Garlic Paste", quantity=1, unit="tbsp", estimated_cost_inr=5.0),
+            RecipeIngredient(name="Chilli Powder", quantity=1.5, unit="tsp", estimated_cost_inr=3.0),
+            RecipeIngredient(name="Turmeric Powder", quantity=0.5, unit="tsp", estimated_cost_inr=1.5),
+            RecipeIngredient(name="Coriander Powder", quantity=1, unit="tsp", estimated_cost_inr=2.0),
+            RecipeIngredient(name="Cooking Oil", quantity=2, unit="tbsp", estimated_cost_inr=6.0),
+            RecipeIngredient(name="Fresh Coriander", quantity=2, unit="sprigs", estimated_cost_inr=5.0, is_optional=True),
+            RecipeIngredient(name="Curry Leaves", quantity=1, unit="sprig", estimated_cost_inr=2.0, is_optional=True),
+        ],
+        instructions=[
+            "Hard-boil 4 eggs, peel them, and make 3 light vertical slits along each egg for the masala to seep in.",
+            "Heat 1 tbsp oil in a skillet, add a pinch of turmeric and chilli powder, and lightly sear boiled eggs for 2 minutes until golden. Set aside.",
+            "In the same pan, heat remaining oil, crackle mustard seeds and curry leaves, then add finely chopped onions and sauté until translucent brown.",
+            "Add ginger-garlic paste and sauté for 1 minute until raw smell disappears.",
+            "Add finely chopped or pureed tomatoes, chilli powder, turmeric, coriander powder, and salt. Cook covered until oil separates from the masala (about 6-7 mins).",
+            "Pour in 1/2 cup of warm water, adjust gravy consistency, gently introduce the seared eggs, and simmer for 3 minutes.",
+            "Garnish with chopped coriander and serve with hot rice, rotis, or dosas."
+        ],
+        tips=[
+            "Slitting boiled eggs helps the tangy tomato gravy penetrate inside.",
+            "Roasting the boiled eggs first gives a delicious golden crust."
+        ],
+        safety_advice="Boiled eggs should be kept refrigerated and consumed within 3 days.",
+        source="curated"
+    ),
+    Recipe(
+        id="onion-tomato-omelette",
+        title="Onion Tomato Omelette",
+        description="Quick, healthy and perfect for breakfast or lunch. Golden-fluffy eggs folded with crunchy onions and juicy tomatoes.",
+        cuisine="Indian Fusion",
+        country="India",
+        dish_type="Breakfast",
+        prep_time_minutes=5,
+        cook_time_minutes=10,
+        difficulty="Easy",
+        servings=2,
+        estimated_total_cost_inr=60.0,
+        estimated_cost_per_serving_inr=30.0,
+        dietary_labels=["Gluten-Free", "High-Protein", "Low-Carb", "Dairy-Free"],
+        image_url="https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80",
+        ingredients=[
+            RecipeIngredient(name="Egg", quantity=4, unit="pieces", estimated_cost_inr=28.0),
+            RecipeIngredient(name="Onion", quantity=100, unit="g", estimated_cost_inr=5.0),
+            RecipeIngredient(name="Tomato", quantity=100, unit="g", estimated_cost_inr=5.0),
+            RecipeIngredient(name="Green Chilli", quantity=2, unit="pieces", estimated_cost_inr=3.0),
+            RecipeIngredient(name="Chilli Powder", quantity=0.5, unit="tsp", estimated_cost_inr=1.5),
+            RecipeIngredient(name="Turmeric Powder", quantity=0.25, unit="tsp", estimated_cost_inr=1.0),
+            RecipeIngredient(name="Cooking Oil or Butter", quantity=1.5, unit="tbsp", estimated_cost_inr=6.0),
+            RecipeIngredient(name="Fresh Coriander", quantity=2, unit="sprigs", estimated_cost_inr=5.0, is_optional=True),
+        ],
+        instructions=[
+            "Finely dice onions, tomatoes, green chillies, and coriander leaves.",
+            "Crack eggs into a medium bowl. Add salt, chilli powder, and turmeric. Whisk vigorously for 1-2 minutes until frothy and bubbly.",
+            "Fold in the diced onions, tomatoes, and herbs into the egg mixture.",
+            "Heat oil or butter in a non-stick pan over medium flame. Pour in half the mixture for the first omelette.",
+            "Swirl pan to spread evenly. Cook undisturbed for 2-3 minutes until the base is set and golden.",
+            "Carefully flip and cook the other side for 1-2 minutes until thoroughly cooked.",
+            "Repeat for the second omelette and serve hot with toasted bread or relish as is!"
+        ],
+        tips=[
+            "Whisking eggs thoroughly incorporates air for fluffier omelettes.",
+            "Ensure tomatoes are deseeded if you prefer a less watery batter."
+        ],
+        safety_advice="Cook eggs until the whites and yolks are firm to eliminate salmonella risk.",
+        source="curated"
+    ),
+    Recipe(
+        id="egg-curry-with-rice",
+        title="Egg Curry with Rice",
+        description="Comfort food with rich flavours and simple steps. Spiced egg masala served atop steamed basmati or ponni rice.",
+        cuisine="Indian",
+        country="India",
+        dish_type="Lunch / Dinner",
+        prep_time_minutes=10,
+        cook_time_minutes=20,
+        difficulty="Medium",
+        servings=2,
+        estimated_total_cost_inr=90.0,
+        estimated_cost_per_serving_inr=45.0,
+        dietary_labels=["Gluten-Free", "High-Protein"],
+        image_url="https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=800&q=80",
+        ingredients=[
+            RecipeIngredient(name="Rice", quantity=200, unit="g", estimated_cost_inr=15.0),
+            RecipeIngredient(name="Egg", quantity=4, unit="pieces", estimated_cost_inr=28.0),
+            RecipeIngredient(name="Tomato", quantity=200, unit="g", estimated_cost_inr=10.0),
+            RecipeIngredient(name="Onion", quantity=150, unit="g", estimated_cost_inr=8.0),
+            RecipeIngredient(name="Garlic", quantity=5, unit="cloves", estimated_cost_inr=8.0),
+            RecipeIngredient(name="Ginger", quantity=15, unit="g", estimated_cost_inr=4.0),
+            RecipeIngredient(name="Chilli Powder", quantity=1.5, unit="tsp", estimated_cost_inr=3.0),
+            RecipeIngredient(name="Garam Masala", quantity=1, unit="tsp", estimated_cost_inr=4.0),
+            RecipeIngredient(name="Cooking Oil", quantity=2, unit="tbsp", estimated_cost_inr=6.0),
+        ],
+        instructions=[
+            "Rinse and cook rice in 2 cups of water with a pinch of salt until tender and fluffy.",
+            "Boil 4 eggs in boiling water for 9 minutes, cool in ice water, peel, and prick with fork.",
+            "Heat oil in a pan, lightly toast eggs with a pinch of turmeric and chilli powder for 2 minutes. Remove.",
+            "In same oil, sauté minced garlic, ginger, and chopped onions until deep caramelized golden.",
+            "Add crushed tomatoes, salt, chilli powder, and garam masala. Cook down to a thick, glistening sauce.",
+            "Add 3/4 cup water, simmer until slightly thickened, gently add the boiled eggs, and baste with curry.",
+            "Serve hot directly over freshly steamed rice."
+        ],
+        tips=[
+            "Caramelizing the onions slowly gives the curry deep natural sweetness and restaurant color."
+        ],
+        safety_advice="Leftover curry should be stored in an airtight container in the fridge and eaten within 2 days.",
+        source="curated"
+    ),
+    Recipe(
+        id="oats-upma",
+        title="Oats Upma",
+        description="Wholesome, fibre-rich South Indian breakfast tempered with mustard seeds, crunchy peanuts, and colorful vegetables.",
+        cuisine="South Indian",
+        country="India",
+        dish_type="Breakfast",
+        prep_time_minutes=5,
+        cook_time_minutes=10,
+        difficulty="Easy",
+        servings=2,
+        estimated_total_cost_inr=45.0,
+        estimated_cost_per_serving_inr=22.5,
+        dietary_labels=["Vegetarian", "Vegan", "Heart-Healthy", "Under ₹50"],
+        image_url="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80",
+        ingredients=[
+            RecipeIngredient(name="Oats", quantity=120, unit="g", estimated_cost_inr=18.0),
+            RecipeIngredient(name="Onion", quantity=80, unit="g", estimated_cost_inr=4.0),
+            RecipeIngredient(name="Carrot", quantity=60, unit="g", estimated_cost_inr=4.0),
+            RecipeIngredient(name="Green Peas", quantity=50, unit="g", estimated_cost_inr=5.0, is_optional=True),
+            RecipeIngredient(name="Mustard Seeds", quantity=1, unit="tsp", estimated_cost_inr=1.5),
+            RecipeIngredient(name="Curry Leaves", quantity=1, unit="sprig", estimated_cost_inr=2.0),
+            RecipeIngredient(name="Green Chilli", quantity=1, unit="piece", estimated_cost_inr=1.5),
+            RecipeIngredient(name="Peanuts", quantity=25, unit="g", estimated_cost_inr=4.0),
+            RecipeIngredient(name="Cooking Oil", quantity=1, unit="tbsp", estimated_cost_inr=3.0),
+            RecipeIngredient(name="Lemon", quantity=0.5, unit="piece", estimated_cost_inr=2.0),
+        ],
+        instructions=[
+            "Dry roast the rolled oats in a pan on medium-low flame for 3-4 minutes until lightly aromatic. Transfer to a bowl.",
+            "In the same pan, heat oil. Add mustard seeds and peanuts; sauté until peanuts are crunchy and seeds splutter.",
+            "Add slit green chilli, grated ginger, and curry leaves. Sauté for 30 seconds.",
+            "Add finely chopped onions and sauté until soft, then add chopped carrots and peas with a splash of water. Cook covered for 3 minutes until tender.",
+            "Pour in 1.5 cups of water and salt to taste. Bring to a rolling boil.",
+            "Lower heat to minimum, gradually sprinkle in roasted oats while stirring continuously to prevent lumps.",
+            "Cover and cook on low heat for 2 minutes until water is absorbed.",
+            "Turn off flame, squeeze fresh lemon juice, fluff with a fork, and serve warm."
+        ],
+        tips=[
+            "Dry roasting oats first keeps the upma non-sticky and pleasantly fluffy.",
+            "Add lemon juice at the end for vibrant tangy contrast."
+        ],
+        safety_advice="Enjoy fresh. Reheat with a tablespoon of hot water if warming later.",
+        source="curated"
+    ),
+    Recipe(
+        id="veg-fried-rice",
+        title="Veg Fried Rice",
+        description="Colorful, crunchy vegetable fried rice wok-tossed with fragrant garlic and mild Asian seasonings.",
+        cuisine="East Asian",
+        country="China",
+        dish_type="Lunch",
+        prep_time_minutes=10,
+        cook_time_minutes=15,
+        difficulty="Easy",
+        servings=2,
+        estimated_total_cost_inr=70.0,
+        estimated_cost_per_serving_inr=35.0,
+        dietary_labels=["Vegetarian", "Vegan", "Dairy-Free"],
+        image_url="https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80",
+        ingredients=[
+            RecipeIngredient(name="Rice (Cooked & Chilled)", quantity=300, unit="g", estimated_cost_inr=20.0),
+            RecipeIngredient(name="Carrot", quantity=80, unit="g", estimated_cost_inr=5.0),
+            RecipeIngredient(name="Cabbage", quantity=80, unit="g", estimated_cost_inr=4.0),
+            RecipeIngredient(name="Capsicum", quantity=80, unit="g", estimated_cost_inr=8.0),
+            RecipeIngredient(name="Garlic", quantity=5, unit="cloves", estimated_cost_inr=8.0),
+            RecipeIngredient(name="Soy Sauce", quantity=2, unit="tbsp", estimated_cost_inr=8.0),
+            RecipeIngredient(name="Vinegar", quantity=1, unit="tsp", estimated_cost_inr=2.0),
+            RecipeIngredient(name="Black Pepper", quantity=0.5, unit="tsp", estimated_cost_inr=2.0),
+            RecipeIngredient(name="Cooking Oil", quantity=2, unit="tbsp", estimated_cost_inr=6.0),
+        ],
+        instructions=[
+            "Finely dice carrots, shred cabbage, and cube capsicum into even small bite-sized pieces.",
+            "Heat oil in a wok or deep skillet on high flame until shimmering.",
+            "Add finely chopped garlic and green chillies. Sauté for 30 seconds until golden.",
+            "Toss in carrots, cabbage, and capsicum. Stir-fry briskly on high flame for 3 minutes so veggies stay crisp.",
+            "Add soy sauce, vinegar, black pepper, and salt. Stir well.",
+            "Add the cold cooked rice, break down any clumps gently, and toss continuously for 2-3 minutes until piping hot.",
+            "Turn off heat and serve with chilli sauce or tomato relish."
+        ],
+        tips=[
+            "Cook vegetables on high flame; don't overcrowd the pan so they sear rather than steam.",
+            "Cold day-old rice gives restaurant-grade individual grains."
+        ],
+        safety_advice="Do not let cooked rice sit out at room temperature for extended hours.",
+        source="curated"
+    ),
+    Recipe(
+        id="tomato-rice-sadam",
+        title="South Indian Tomato Rice (Thakkali Sadam)",
+        description="Flavorful, tangy one-pot tomato rice prepared with fresh ripe tomatoes, sautéed onions, and aromatic South Indian tempering. Perfect when you only have rice, tomato, and onion at home.",
+        cuisine="South Indian",
+        country="India",
+        dish_type="Lunch / Dinner",
+        prep_time_minutes=8,
+        cook_time_minutes=15,
+        difficulty="Easy",
+        servings=2,
+        estimated_total_cost_inr=50.0,
+        estimated_cost_per_serving_inr=25.0,
+        dietary_labels=["Vegetarian", "Vegan", "Gluten-Free", "Under ₹50"],
+        image_url="https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&fit=crop&w=800&q=80",
+        ingredients=[
+            RecipeIngredient(name="Rice (Cooked or Raw)", quantity=250, unit="g", estimated_cost_inr=15.0),
+            RecipeIngredient(name="Tomato", quantity=250, unit="g", estimated_cost_inr=12.0),
+            RecipeIngredient(name="Onion", quantity=100, unit="g", estimated_cost_inr=5.0),
+            RecipeIngredient(name="Cooking Oil", quantity=2, unit="tbsp", estimated_cost_inr=6.0),
+            RecipeIngredient(name="Chilli Powder", quantity=1, unit="tsp", estimated_cost_inr=2.0),
+            RecipeIngredient(name="Mustard Seeds", quantity=1, unit="tsp", estimated_cost_inr=1.5, is_optional=True),
+            RecipeIngredient(name="Curry Leaves", quantity=1, unit="sprig", estimated_cost_inr=2.0, is_optional=True),
+        ],
+        instructions=[
+            "Cook 1 cup of rice with 2 cups of water and a pinch of salt until soft and fluffy. Spread on a plate to cool.",
+            "Heat 2 tbsp oil in a pan. Add mustard seeds and curry leaves; allow them to crackle.",
+            "Add finely chopped onions and sauté until translucent and light golden.",
+            "Add chopped tomatoes, chilli powder, and salt. Cook on medium heat until tomatoes turn mushy and oil separates (about 6 minutes).",
+            "Gently mix in the cooked rice into the tomato gravy until evenly coated.",
+            "Cover and simmer on low flame for 2 minutes. Serve hot with chips or cucumber raita!"
+        ],
+        tips=[
+            "Allow the cooked rice to cool completely before mixing to prevent mushiness.",
+            "Add a green chilli slit in half for extra zest."
+        ],
+        safety_advice="Refrigerate leftover tomato rice within 2 hours in an airtight container.",
+        source="curated"
+    ),
+    Recipe(
+        id="classic-margherita-pasta",
+        title="Classic Margherita Penne Pasta",
+        description="Fresh Italian pasta tossed in a sweet and garlicky ripe tomato sauce, fragrant basil, and light melted cheese.",
+        cuisine="European",
+        country="Italy",
+        dish_type="Lunch / Dinner",
+        prep_time_minutes=10,
+        cook_time_minutes=15,
+        difficulty="Easy",
+        servings=2,
+        estimated_total_cost_inr=95.0,
+        estimated_cost_per_serving_inr=47.5,
+        dietary_labels=["Vegetarian"],
+        image_url="https://images.unsplash.com/photo-1621996346565-e3d5d6281072?auto=format&fit=crop&w=800&q=80",
+        ingredients=[
+            RecipeIngredient(name="Pasta (Penne or Spaghetti)", quantity=200, unit="g", estimated_cost_inr=25.0),
+            RecipeIngredient(name="Tomato (Ripe)", quantity=300, unit="g", estimated_cost_inr=15.0),
+            RecipeIngredient(name="Garlic", quantity=5, unit="cloves", estimated_cost_inr=8.0),
+            RecipeIngredient(name="Olive Oil or Cooking Oil", quantity=2, unit="tbsp", estimated_cost_inr=15.0),
+            RecipeIngredient(name="Oregano", quantity=1, unit="tsp", estimated_cost_inr=4.0),
+            RecipeIngredient(name="Fresh Basil or Coriander", quantity=6, unit="leaves", estimated_cost_inr=6.0),
+            RecipeIngredient(name="Cheese (Grated)", quantity=30, unit="g", estimated_cost_inr=22.0, is_optional=True),
+        ],
+        instructions=[
+            "Boil 2 litres of water with 1 tbsp salt. Drop pasta and boil until al dente (approx 9-10 mins). Reserve 1/2 cup pasta cooking water, then drain.",
+            "In a pan, warm oil over medium heat. Add thinly sliced garlic and chilli flakes; sauté until golden.",
+            "Add crushed tomatoes, salt, and oregano. Simmer gently for 8-10 minutes until sauce thickens.",
+            "Pour in 2-3 tablespoons of reserved pasta water to emulsify the sauce.",
+            "Toss boiled pasta directly into the sauce. Mix gently for 1 minute until well coated.",
+            "Turn off heat, stir in fresh basil leaves, and top with grated cheese."
+        ],
+        tips=[
+            "Always save some starchy pasta water — it is the secret to silky restaurant sauce adherence."
+        ],
+        safety_advice="Can be stored in refrigerator for up to 3 days. Reheat with a splash of water.",
+        source="curated"
+    ),
+    Recipe(
+        id="shakshuka-mediterranean",
+        title="Mediterranean Shakshuka",
+        description="Eggs gently poached in a simmering spiced stew of crushed tomatoes, bell peppers, garlic, and cumin.",
+        cuisine="Middle Eastern",
+        country="Lebanon / North Africa",
+        dish_type="Breakfast / Brunch",
+        prep_time_minutes=10,
+        cook_time_minutes=15,
+        difficulty="Easy",
+        servings=2,
+        estimated_total_cost_inr=85.0,
+        estimated_cost_per_serving_inr=42.5,
+        dietary_labels=["Vegetarian", "High-Protein", "Gluten-Free"],
+        image_url="https://images.unsplash.com/photo-1590412200988-a436970781fa?auto=format&fit=crop&w=800&q=80",
+        ingredients=[
+            RecipeIngredient(name="Egg", quantity=3, unit="pieces", estimated_cost_inr=21.0),
+            RecipeIngredient(name="Tomato", quantity=250, unit="g", estimated_cost_inr=12.0),
+            RecipeIngredient(name="Capsicum", quantity=100, unit="g", estimated_cost_inr=10.0),
+            RecipeIngredient(name="Onion", quantity=100, unit="g", estimated_cost_inr=5.0),
+            RecipeIngredient(name="Garlic", quantity=4, unit="cloves", estimated_cost_inr=8.0),
+            RecipeIngredient(name="Cumin Seeds", quantity=1, unit="tsp", estimated_cost_inr=2.0),
+            RecipeIngredient(name="Chilli Powder or Paprika", quantity=1, unit="tsp", estimated_cost_inr=2.5),
+            RecipeIngredient(name="Cooking Oil", quantity=1.5, unit="tbsp", estimated_cost_inr=5.0),
+            RecipeIngredient(name="Fresh Coriander", quantity=2, unit="sprigs", estimated_cost_inr=5.0, is_optional=True),
+        ],
+        instructions=[
+            "Heat oil in a heavy skillet. Add chopped onion, garlic, and diced bell peppers. Cook for 5 minutes until softened.",
+            "Add cumin, chilli powder/paprika, and salt. Stir for 1 minute until fragrant.",
+            "Pour in crushed ripe tomatoes and 1/4 cup water. Simmer on medium-low for 7 minutes until saucy.",
+            "Use a spoon to create 3 small wells in the tomato sauce.",
+            "Carefully crack an egg into each well. Season egg tops with salt and pepper.",
+            "Cover pan with lid and cook on low heat for 5-7 minutes until egg whites are set and yolks remain soft.",
+            "Garnish with chopped coriander and serve immediately straight from the pan with bread."
+        ],
+        tips=[
+            "Keep the flame low after cracking the eggs so they poach gently without scorching the bottom."
+        ],
+        safety_advice="Ensure egg whites are fully coagulated and firm.",
+        source="curated"
+    ),
+    Recipe(
+        id="south-indian-sambar-rice",
+        title="Comforting South Indian Sambar with Rice",
+        description="A quintessential hearty stew of toor dal, drumsticks/veggies, tangy tamarind, and aromatic sambar masala.",
+        cuisine="South Indian",
+        country="India",
+        dish_type="Lunch / Dinner",
+        prep_time_minutes=15,
+        cook_time_minutes=25,
+        difficulty="Medium",
+        servings=3,
+        estimated_total_cost_inr=80.0,
+        estimated_cost_per_serving_inr=26.6,
+        dietary_labels=["Vegetarian", "Vegan", "Gluten-Free", "High-Protein", "Under ₹30"],
+        image_url="https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80",
+        ingredients=[
+            RecipeIngredient(name="Rice", quantity=250, unit="g", estimated_cost_inr=15.0),
+            RecipeIngredient(name="Toor Dal", quantity=120, unit="g", estimated_cost_inr=20.0),
+            RecipeIngredient(name="Tomato", quantity=150, unit="g", estimated_cost_inr=8.0),
+            RecipeIngredient(name="Onion", quantity=100, unit="g", estimated_cost_inr=5.0),
+            RecipeIngredient(name="Carrot or Potato", quantity=100, unit="g", estimated_cost_inr=6.0),
+            RecipeIngredient(name="Mustard Seeds", quantity=1, unit="tsp", estimated_cost_inr=1.5),
+            RecipeIngredient(name="Curry Leaves", quantity=1, unit="sprig", estimated_cost_inr=2.0),
+            RecipeIngredient(name="Chilli Powder & Turmeric", quantity=1.5, unit="tsp", estimated_cost_inr=3.0),
+            RecipeIngredient(name="Cooking Oil", quantity=1.5, unit="tbsp", estimated_cost_inr=4.5),
+        ],
+        instructions=[
+            "Cook toor dal in pressure cooker with turmeric and water until mushy (approx 3-4 whistles). Mash well.",
+            "In a pot, boil mixed vegetables (carrot, potato, onion, tomato) with salt and chilli powder until tender.",
+            "Add mashed dal and 1 cup water to the cooked vegetables. Bring to a boil.",
+            "In a small pan, temper mustard seeds, cumin seeds, and curry leaves in hot oil. Pour sputtering tempering into the sambar.",
+            "Simmer for 3 minutes. Serve hot over steamed rice."
+        ],
+        tips=["Adding a pinch of asafoetida (hing) in the tempering enhances authenticity and digestion."],
+        safety_advice="Can be refrigerated for up to 3 days. Boil well before serving leftover sambar.",
+        source="curated"
+    ),
+    Recipe(
+        id="lemon-rice-crunchy-peanuts",
+        title="Tangy Lemon Rice with Crunchy Peanuts",
+        description="Golden turmeric-infused tempered rice tossed with fresh lemon juice, crispy peanuts, and curry leaves.",
+        cuisine="South Indian",
+        country="India",
+        dish_type="Lunch / Snack",
+        prep_time_minutes=5,
+        cook_time_minutes=10,
+        difficulty="Easy",
+        servings=2,
+        estimated_total_cost_inr=40.0,
+        estimated_cost_per_serving_inr=20.0,
+        dietary_labels=["Vegetarian", "Vegan", "Gluten-Free", "Under ₹30"],
+        image_url="https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&w=800&q=80",
+        ingredients=[
+            RecipeIngredient(name="Rice (Cooked)", quantity=250, unit="g", estimated_cost_inr=15.0),
+            RecipeIngredient(name="Lemon", quantity=1, unit="piece", estimated_cost_inr=5.0),
+            RecipeIngredient(name="Peanuts", quantity=30, unit="g", estimated_cost_inr=6.0),
+            RecipeIngredient(name="Mustard Seeds", quantity=1, unit="tsp", estimated_cost_inr=1.5),
+            RecipeIngredient(name="Curry Leaves", quantity=1, unit="sprig", estimated_cost_inr=2.0),
+            RecipeIngredient(name="Green Chilli", quantity=2, unit="pieces", estimated_cost_inr=3.0),
+            RecipeIngredient(name="Turmeric Powder", quantity=0.5, unit="tsp", estimated_cost_inr=1.5),
+            RecipeIngredient(name="Cooking Oil", quantity=1.5, unit="tbsp", estimated_cost_inr=4.5),
+        ],
+        instructions=[
+            "Cool down cooked rice on a wide plate and drizzle half a teaspoon of oil over it so grains stay separate.",
+            "Heat oil in a pan. Add mustard seeds and let them crackle. Add peanuts and fry on low heat until golden and crispy.",
+            "Add slit green chillies, curry leaves, and turmeric powder. Sauté for 30 seconds.",
+            "Turn off the heat completely! Add fresh lemon juice and salt to the pan and mix.",
+            "Gently fold the tempered lemon oil into the cooled rice until evenly golden.",
+            "Serve at room temperature with potato chips or pickle."
+        ],
+        tips=["Never heat lemon juice directly on high heat as it can become bitter."],
+        safety_advice="Lemon rice travels exceptionally well and keeps for up to 12 hours at room temperature.",
+        source="curated"
+    ),
+    Recipe(
+        id="spicy-potato-tacos",
+        title="Crispy Spiced Potato Tacos",
+        description="Crispy cumin-spiced potatoes served in warm wraps or tortillas with tangy onions, fresh tomatoes, and spicy drizzle.",
+        cuisine="Americas",
+        country="Mexico",
+        dish_type="Dinner / Snack",
+        prep_time_minutes=10,
+        cook_time_minutes=15,
+        difficulty="Easy",
+        servings=2,
+        estimated_total_cost_inr=65.0,
+        estimated_cost_per_serving_inr=32.5,
+        dietary_labels=["Vegetarian", "Vegan", "Dairy-Free", "Under ₹50"],
+        image_url="https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=800&q=80",
+        ingredients=[
+            RecipeIngredient(name="Potato (Boiled or Cubed)", quantity=250, unit="g", estimated_cost_inr=10.0),
+            RecipeIngredient(name="Wheat Flatbread / Chapati / Tortilla", quantity=4, unit="pieces", estimated_cost_inr=15.0),
+            RecipeIngredient(name="Tomato", quantity=100, unit="g", estimated_cost_inr=5.0),
+            RecipeIngredient(name="Onion", quantity=80, unit="g", estimated_cost_inr=4.0),
+            RecipeIngredient(name="Chilli Powder", quantity=1, unit="tsp", estimated_cost_inr=2.0),
+            RecipeIngredient(name="Cumin Seeds", quantity=1, unit="tsp", estimated_cost_inr=2.0),
+            RecipeIngredient(name="Cooking Oil", quantity=2, unit="tbsp", estimated_cost_inr=6.0),
+            RecipeIngredient(name="Fresh Coriander", quantity=2, unit="sprigs", estimated_cost_inr=5.0),
+            RecipeIngredient(name="Lemon", quantity=0.5, unit="piece", estimated_cost_inr=2.5),
+        ],
+        instructions=[
+            "Dice boiled potatoes into small cubes.",
+            "Heat oil in a pan, toss in cumin seeds and potatoes. Fry on high flame until edges are golden and crispy.",
+            "Sprinkle chilli powder, salt, and lemon juice. Toss to coat evenly.",
+            "Warm flatbreads/tortillas on a griddle.",
+            "Fill warm breads with crispy spiced potatoes, diced raw onions, juicy tomatoes, and fresh coriander.",
+            "Squeeze extra lemon juice on top and fold."
+        ],
+        tips=["Boiling potatoes ahead of time makes taco assembly take under 10 minutes!"],
+        safety_advice="Eat immediately while potatoes are crispy.",
+        source="curated"
+    ),
+    Recipe(
+        id="leftover-rice-crispy-cutlets",
+        title="Leftover Rice & Veggie Crispy Cutlets",
+        description="The ultimate leftover rescue! Yesterday's cooked rice transformed into golden, crunchy, spiced patties.",
+        cuisine="Fusion",
+        country="India / Global",
+        dish_type="Snack / Leftover Rescue",
+        prep_time_minutes=10,
+        cook_time_minutes=10,
+        difficulty="Easy",
+        servings=2,
+        estimated_total_cost_inr=30.0,
+        estimated_cost_per_serving_inr=15.0,
+        dietary_labels=["Vegetarian", "Vegan", "Budget Rescue", "Under ₹30"],
+        image_url="https://images.unsplash.com/photo-1541518763669-27fef04b14ea?auto=format&fit=crop&w=800&q=80",
+        ingredients=[
+            RecipeIngredient(name="Rice (Cooked Leftover)", quantity=250, unit="g", estimated_cost_inr=5.0),
+            RecipeIngredient(name="Onion", quantity=80, unit="g", estimated_cost_inr=4.0),
+            RecipeIngredient(name="Green Chilli", quantity=1, unit="piece", estimated_cost_inr=1.5),
+            RecipeIngredient(name="Chilli Powder", quantity=0.5, unit="tsp", estimated_cost_inr=1.0),
+            RecipeIngredient(name="Wheat Flour or Cornflour", quantity=2, unit="tbsp", estimated_cost_inr=3.0),
+            RecipeIngredient(name="Cooking Oil", quantity=2, unit="tbsp", estimated_cost_inr=6.0),
+            RecipeIngredient(name="Fresh Coriander", quantity=1, unit="sprig", estimated_cost_inr=3.0),
+        ],
+        instructions=[
+            "Mash the leftover cooked rice thoroughly with hands or a potato masher in a mixing bowl.",
+            "Add finely chopped onion, minced green chillies, fresh coriander, chilli powder, salt, and wheat flour for binding.",
+            "Knead into a non-sticky pliable dough. Shape into palm-sized flat cutlets/patties.",
+            "Heat 2 tbsp oil in a shallow pan. Place the cutlets carefully.",
+            "Pan-fry on medium flame for 3-4 minutes per side until deep golden and crunchy.",
+            "Drain on paper towel and serve with tomato ketchup or tea."
+        ],
+        tips=["If rice is too dry, sprinkle a teaspoon of water or curd to bring the dough together."],
+        safety_advice="Ensure leftover rice was refrigerated within 2 hours of its original preparation.",
+        source="curated"
+    )
+]
+
+DEFAULT_MEAL_PLAN = MealPlan(
+    id="family-plan-oct-21",
+    title="Family Plan",
+    week_range="Oct 21 - Oct 27",
+    days=[
+        MealPlanDay(
+            day="Mon",
+            date_str="Oct 21",
+            breakfast=MealPlanSlot(recipe_id="oats-upma", recipe_title="Oats Upma", cuisine="South Indian", cook_time_minutes=15, difficulty="Easy", image_url="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80", servings=2),
+            lunch=MealPlanSlot(recipe_id="veg-fried-rice", recipe_title="Veg Fried Rice", cuisine="East Asian", cook_time_minutes=25, difficulty="Easy", image_url="https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=400&q=80", servings=2),
+            dinner=MealPlanSlot(recipe_id="tomato-egg-curry", recipe_title="Tomato Egg Curry", cuisine="South Indian", cook_time_minutes=20, difficulty="Medium", image_url="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=400&q=80", servings=2)
+        ),
+        MealPlanDay(
+            day="Tue",
+            date_str="Oct 22",
+            breakfast=MealPlanSlot(recipe_id="onion-tomato-omelette", recipe_title="Onion Tomato Omelette", cuisine="Indian Fusion", cook_time_minutes=15, difficulty="Easy", image_url="https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=400&q=80", servings=2),
+            lunch=MealPlanSlot(recipe_id="lemon-rice-crunchy-peanuts", recipe_title="Lemon Rice with Peanuts", cuisine="South Indian", cook_time_minutes=15, difficulty="Easy", image_url="https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&w=400&q=80", servings=2),
+            dinner=MealPlanSlot(recipe_id="egg-fried-rice", recipe_title="Egg Fried Rice", cuisine="East Asian", cook_time_minutes=25, difficulty="Easy", image_url="https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=400&q=80", servings=2)
+        ),
+        MealPlanDay(
+            day="Wed",
+            date_str="Oct 23",
+            breakfast=MealPlanSlot(recipe_id="shakshuka-mediterranean", recipe_title="Mediterranean Shakshuka", cuisine="Middle Eastern", cook_time_minutes=15, difficulty="Easy", image_url="https://images.unsplash.com/photo-1590412200988-a436970781fa?auto=format&fit=crop&w=400&q=80", servings=2),
+            lunch=MealPlanSlot(recipe_id="south-indian-sambar-rice", recipe_title="Sambar with Rice", cuisine="South Indian", cook_time_minutes=25, difficulty="Medium", image_url="https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=400&q=80", servings=2),
+            dinner=MealPlanSlot(recipe_id="classic-margherita-pasta", recipe_title="Classic Margherita Pasta", cuisine="European", cook_time_minutes=15, difficulty="Easy", image_url="https://images.unsplash.com/photo-1621996346565-e3d5d6281072?auto=format&fit=crop&w=400&q=80", servings=2)
+        ),
+        MealPlanDay(
+            day="Thu",
+            date_str="Oct 24",
+            breakfast=MealPlanSlot(recipe_id="oats-upma", recipe_title="Oats Upma", cuisine="South Indian", cook_time_minutes=15, difficulty="Easy", image_url="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80", servings=2),
+            lunch=MealPlanSlot(recipe_id="spicy-potato-tacos", recipe_title="Spiced Potato Tacos", cuisine="Americas", cook_time_minutes=15, difficulty="Easy", image_url="https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=400&q=80", servings=2),
+            dinner=MealPlanSlot(recipe_id="egg-curry-with-rice", recipe_title="Egg Curry with Rice", cuisine="Indian", cook_time_minutes=30, difficulty="Medium", image_url="https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=400&q=80", servings=2)
+        ),
+        MealPlanDay(
+            day="Fri",
+            date_str="Oct 25",
+            breakfast=MealPlanSlot(recipe_id="onion-tomato-omelette", recipe_title="Onion Tomato Omelette", cuisine="Indian Fusion", cook_time_minutes=15, difficulty="Easy", image_url="https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=400&q=80", servings=2),
+            lunch=MealPlanSlot(recipe_id="egg-fried-rice", recipe_title="Egg Fried Rice", cuisine="East Asian", cook_time_minutes=25, difficulty="Easy", image_url="https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=400&q=80", servings=2),
+            dinner=MealPlanSlot(recipe_id="classic-margherita-pasta", recipe_title="Classic Margherita Pasta", cuisine="European", cook_time_minutes=15, difficulty="Easy", image_url="https://images.unsplash.com/photo-1621996346565-e3d5d6281072?auto=format&fit=crop&w=400&q=80", servings=2)
+        ),
+        MealPlanDay(
+            day="Sat",
+            date_str="Oct 26",
+            breakfast=MealPlanSlot(recipe_id="shakshuka-mediterranean", recipe_title="Mediterranean Shakshuka", cuisine="Middle Eastern", cook_time_minutes=15, difficulty="Easy", image_url="https://images.unsplash.com/photo-1590412200988-a436970781fa?auto=format&fit=crop&w=400&q=80", servings=2),
+            lunch=MealPlanSlot(recipe_id="south-indian-sambar-rice", recipe_title="Sambar with Rice", cuisine="South Indian", cook_time_minutes=25, difficulty="Medium", image_url="https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=400&q=80", servings=2),
+            dinner=MealPlanSlot(recipe_id="spicy-potato-tacos", recipe_title="Spiced Potato Tacos", cuisine="Americas", cook_time_minutes=15, difficulty="Easy", image_url="https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=400&q=80", servings=2)
+        ),
+        MealPlanDay(
+            day="Sun",
+            date_str="Oct 27",
+            breakfast=MealPlanSlot(recipe_id="oats-upma", recipe_title="Oats Upma", cuisine="South Indian", cook_time_minutes=15, difficulty="Easy", image_url="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80", servings=2),
+            lunch=MealPlanSlot(recipe_id="egg-curry-with-rice", recipe_title="Egg Curry with Rice", cuisine="Indian", cook_time_minutes=30, difficulty="Medium", image_url="https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=400&q=80", servings=2),
+            dinner=MealPlanSlot(recipe_id="leftover-rice-crispy-cutlets", recipe_title="Rice Veggie Cutlets", cuisine="Fusion", cook_time_minutes=15, difficulty="Easy", image_url="https://images.unsplash.com/photo-1541518763669-27fef04b14ea?auto=format&fit=crop&w=400&q=80", servings=2)
+        )
+    ]
+)
+
+DEFAULT_PANTRY: List[PantryItem] = [
+    PantryItem(id="p1", name="Rice", category="Grains", quantity=2000, unit="g", state="dried", purchase_date="2026-10-15", expiry_date="2027-04-15", days_to_expiry=169, is_expiring_soon=False),
+    PantryItem(id="p2", name="Eggs", category="Dairy & Eggs", quantity=12, unit="pieces", state="fresh", purchase_date="2026-10-24", expiry_date="2026-11-03", days_to_expiry=6, is_expiring_soon=True),
+    PantryItem(id="p3", name="Tomatoes", category="Vegetables", quantity=500, unit="g", state="fresh", purchase_date="2026-10-25", expiry_date="2026-10-31", days_to_expiry=3, is_expiring_soon=True),
+    PantryItem(id="p4", name="Onions", category="Vegetables", quantity=1000, unit="g", state="fresh", purchase_date="2026-10-20", expiry_date="2026-11-15", days_to_expiry=18, is_expiring_soon=False),
+    PantryItem(id="p5", name="Garlic", category="Vegetables", quantity=100, unit="g", state="fresh", purchase_date="2026-10-18", expiry_date="2026-11-20", days_to_expiry=23, is_expiring_soon=False),
+    PantryItem(id="p6", name="Chilli Powder", category="Spices", quantity=200, unit="g", state="dried", purchase_date="2026-09-10", expiry_date="2027-09-10", days_to_expiry=317, is_expiring_soon=False),
+    PantryItem(id="p7", name="Cooking Oil", category="Oils", quantity=1000, unit="ml", state="canned", purchase_date="2026-10-01", expiry_date="2027-03-01", days_to_expiry=124, is_expiring_soon=False),
+]

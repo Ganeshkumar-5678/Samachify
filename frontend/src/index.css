@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@theme {
+  --color-forest: #854D0E;
+  --color-forest-dark: #543105;
+  --color-forest-light: #CA8A04;
+  --color-forest-muted: #A16207;
+
+  --color-mustard: #CA8A04;
+  --color-mustard-dark: #854D0E;
+  --color-mustard-light: #FACC15;
+  --color-mustard-deep: #451A03;
+
+  --color-cream: #FEF3C7;
+  --color-cream-light: #FFFDF5;
+  --color-cream-surface: #FFFBEB;
+  --color-cream-border: #FDE68A;
+
+  --color-spice: #D97706;
+  --color-spice-hover: #B45309;
+  --color-spice-light: #FEF3C7;
+
+  --color-sage: #FEF08A;
+  --color-sage-dark: #EAB308;
+  --color-sage-light: #FEF9C3;
+
+  --color-deep: #361E04;
+  --color-deep-muted: #785E3A;
+  --color-deep-subtle: #A1824A;
+
+  --shadow-soft: 0 4px 20px -2px rgba(133, 77, 14, 0.08), 0 2px 6px -1px rgba(133, 77, 14, 0.05);
+  --shadow-card: 0 10px 30px -4px rgba(133, 77, 14, 0.12), 0 4px 10px -2px rgba(133, 77, 14, 0.06);
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: #FFFDF5;
+  color: #2D1E0B;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar in Mustard Theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FEF3C7;
+}
+::-webkit-scrollbar-thumb {
+  background: #CA8A04;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #854D0E;
+}
+
+/* Recipe Card Glow on Hover */
+.recipe-card-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.recipe-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px -6px rgba(133, 77, 14, 0.16), 0 4px 12px -2px rgba(133, 77, 14, 0.08);
+}
