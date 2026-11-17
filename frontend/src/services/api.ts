@@ -445,10 +445,28 @@ export const api = {
   },
 
   async getPantry(): Promise<PantryItem[]> {
-    return [];
+    const saved = localStorage.getItem('samachify_pantry');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) {}
+    }
+    const defaultPantry: PantryItem[] = [
+      { id: 'p1', name: 'Rice', category: 'Grains', quantity: 2000, unit: 'g', state: 'dried', purchase_date: '2026-10-15', expiry_date: '2027-04-15', days_to_expiry: 169, is_expiring_soon: false },
+      { id: 'p2', name: 'Eggs', category: 'Dairy & Eggs', quantity: 12, unit: 'pieces', state: 'fresh', purchase_date: '2026-10-24', expiry_date: '2026-11-25', days_to_expiry: 8, is_expiring_soon: true },
+      { id: 'p3', name: 'Tomatoes', category: 'Vegetables', quantity: 500, unit: 'g', state: 'fresh', purchase_date: '2026-10-25', expiry_date: '2026-11-22', days_to_expiry: 5, is_expiring_soon: true },
+      { id: 'p4', name: 'Onions', category: 'Vegetables', quantity: 1000, unit: 'g', state: 'fresh', purchase_date: '2026-10-20', expiry_date: '2026-12-15', days_to_expiry: 28, is_expiring_soon: false },
+      { id: 'p5', name: 'Garlic', category: 'Vegetables', quantity: 100, unit: 'g', state: 'fresh', purchase_date: '2026-10-18', expiry_date: '2026-12-20', days_to_expiry: 33, is_expiring_soon: false },
+      { id: 'p6', name: 'Cooking Oil', category: 'Oils', quantity: 1000, unit: 'ml', state: 'canned', purchase_date: '2026-10-01', expiry_date: '2027-03-01', days_to_expiry: 124, is_expiring_soon: false },
+      { id: 'p7', name: 'Chili Powder', category: 'Spices', quantity: 200, unit: 'g', state: 'dried', purchase_date: '2026-09-10', expiry_date: '2027-09-10', days_to_expiry: 317, is_expiring_soon: false },
+    ];
+    localStorage.setItem('samachify_pantry', JSON.stringify(defaultPantry));
+    return defaultPantry;
   },
 
   async updatePantry(items: PantryItem[]): Promise<PantryItem[]> {
+    localStorage.setItem('samachify_pantry', JSON.stringify(items));
     return items;
   },
 
