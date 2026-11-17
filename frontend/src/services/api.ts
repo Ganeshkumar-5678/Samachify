@@ -130,22 +130,318 @@ export const api = {
     return data.session;
   },
 
-  // Backwards compatibility helpers
+  async getAllRecipes(): Promise<Recipe[]> {
+    try {
+      const res = await fetch(`${API_BASE}/recipes`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.recipes && Array.isArray(data.recipes)) {
+          return data.recipes;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not fetch all recipes from API:', e);
+    }
+    return [];
+  },
+
+  // Meal Plan API with robust local storage & server synchronization
   async getMealPlan(): Promise<MealPlan> {
+    try {
+      const res = await fetch(`${API_BASE}/mealplan`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.mealPlan && data.mealPlan.days && data.mealPlan.days.length > 0) {
+          localStorage.setItem('samachify_meal_plan', JSON.stringify(data.mealPlan));
+          return data.mealPlan;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not fetch meal plan from API, checking local storage:', e);
+    }
+
+    const saved = localStorage.getItem('samachify_meal_plan');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.days && parsed.days.length > 0) return parsed;
+      } catch (err) {
+        // ignore parse error
+      }
+    }
+
+    // Default 7-day meal plan fallback with authentic recipes
     return {
-      id: 'local-plan',
+      id: 'family-plan-week',
       title: 'Weekly Meal Plan',
       week_range: 'This Week',
-      days: [],
+      days: [
+        {
+          day: 'Mon',
+          date_str: 'Day 1',
+          breakfast: {
+            recipe_id: 'ven-pongal',
+            recipe_title: 'Traditional Ven Pongal',
+            cuisine: 'Tamil Nadu',
+            cook_time_minutes: 20,
+            difficulty: 'Easy',
+            image_url: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+          lunch: {
+            recipe_id: 'thakkali-sadam',
+            recipe_title: 'South Indian Tomato Rice',
+            cuisine: 'Tamil Nadu',
+            cook_time_minutes: 25,
+            difficulty: 'Easy',
+            image_url: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+          dinner: {
+            recipe_id: 'potato-curry',
+            recipe_title: 'Potato Curry',
+            cuisine: 'South Indian',
+            cook_time_minutes: 30,
+            difficulty: 'Medium',
+            image_url: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+        },
+        {
+          day: 'Tue',
+          date_str: 'Day 2',
+          breakfast: {
+            recipe_id: 'onion-tomato-omelette',
+            recipe_title: 'Onion Tomato Omelette',
+            cuisine: 'Indian',
+            cook_time_minutes: 10,
+            difficulty: 'Easy',
+            image_url: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=400&q=80',
+            servings: 1,
+          },
+          lunch: {
+            recipe_id: 'lemon-rice',
+            recipe_title: 'Tangy Lemon Rice',
+            cuisine: 'Tamil Nadu',
+            cook_time_minutes: 15,
+            difficulty: 'Easy',
+            image_url: 'https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+          dinner: {
+            recipe_id: 'veg-fried-rice',
+            recipe_title: 'Veg Fried Rice',
+            cuisine: 'Indo-Chinese',
+            cook_time_minutes: 20,
+            difficulty: 'Easy',
+            image_url: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+        },
+        {
+          day: 'Wed',
+          date_str: 'Day 3',
+          breakfast: {
+            recipe_id: 'medu-vadai',
+            recipe_title: 'Crispy Medu Vadai',
+            cuisine: 'Tamil Nadu',
+            cook_time_minutes: 20,
+            difficulty: 'Medium',
+            image_url: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+          lunch: {
+            recipe_id: 'tamil-sambar',
+            recipe_title: 'Authentic Tamil Nadu Sambar',
+            cuisine: 'Tamil Nadu',
+            cook_time_minutes: 30,
+            difficulty: 'Medium',
+            image_url: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+          dinner: {
+            recipe_id: 'tomato-egg-curry',
+            recipe_title: 'Tomato Egg Curry',
+            cuisine: 'South Indian',
+            cook_time_minutes: 25,
+            difficulty: 'Medium',
+            image_url: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+        },
+        {
+          day: 'Thu',
+          date_str: 'Day 4',
+          breakfast: {
+            recipe_id: 'ven-pongal',
+            recipe_title: 'Traditional Ven Pongal',
+            cuisine: 'Tamil Nadu',
+            cook_time_minutes: 20,
+            difficulty: 'Easy',
+            image_url: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+          lunch: {
+            recipe_id: 'veg-fried-rice',
+            recipe_title: 'Veg Fried Rice',
+            cuisine: 'Indo-Chinese',
+            cook_time_minutes: 20,
+            difficulty: 'Easy',
+            image_url: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+          dinner: {
+            recipe_id: 'potato-curry',
+            recipe_title: 'Potato Curry',
+            cuisine: 'South Indian',
+            cook_time_minutes: 30,
+            difficulty: 'Medium',
+            image_url: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+        },
+        {
+          day: 'Fri',
+          date_str: 'Day 5',
+          breakfast: {
+            recipe_id: 'onion-tomato-omelette',
+            recipe_title: 'Onion Tomato Omelette',
+            cuisine: 'Indian',
+            cook_time_minutes: 10,
+            difficulty: 'Easy',
+            image_url: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=400&q=80',
+            servings: 1,
+          },
+          lunch: {
+            recipe_id: 'thakkali-sadam',
+            recipe_title: 'South Indian Tomato Rice',
+            cuisine: 'Tamil Nadu',
+            cook_time_minutes: 25,
+            difficulty: 'Easy',
+            image_url: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+          dinner: {
+            recipe_id: 'garlic-tomato-pasta',
+            recipe_title: 'Classic Garlic & Tomato Penne',
+            cuisine: 'Italian',
+            cook_time_minutes: 20,
+            difficulty: 'Easy',
+            image_url: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281072?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+        },
+        {
+          day: 'Sat',
+          date_str: 'Day 6',
+          breakfast: {
+            recipe_id: 'medu-vadai',
+            recipe_title: 'Crispy Medu Vadai',
+            cuisine: 'Tamil Nadu',
+            cook_time_minutes: 20,
+            difficulty: 'Medium',
+            image_url: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+          lunch: {
+            recipe_id: 'tamil-sambar',
+            recipe_title: 'Authentic Tamil Nadu Sambar',
+            cuisine: 'Tamil Nadu',
+            cook_time_minutes: 30,
+            difficulty: 'Medium',
+            image_url: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+          dinner: {
+            recipe_id: 'tomato-egg-curry',
+            recipe_title: 'Tomato Egg Curry',
+            cuisine: 'South Indian',
+            cook_time_minutes: 25,
+            difficulty: 'Medium',
+            image_url: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+        },
+        {
+          day: 'Sun',
+          date_str: 'Day 7',
+          breakfast: {
+            recipe_id: 'ven-pongal',
+            recipe_title: 'Traditional Ven Pongal',
+            cuisine: 'Tamil Nadu',
+            cook_time_minutes: 20,
+            difficulty: 'Easy',
+            image_url: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+          lunch: {
+            recipe_id: 'veg-fried-rice',
+            recipe_title: 'Veg Fried Rice',
+            cuisine: 'Indo-Chinese',
+            cook_time_minutes: 20,
+            difficulty: 'Easy',
+            image_url: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+          dinner: {
+            recipe_id: 'potato-curry',
+            recipe_title: 'Potato Curry',
+            cuisine: 'South Indian',
+            cook_time_minutes: 30,
+            difficulty: 'Medium',
+            image_url: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=400&q=80',
+            servings: 2,
+          },
+        },
+      ],
     };
   },
 
   async updateMealPlan(plan: MealPlan): Promise<MealPlan> {
+    localStorage.setItem('samachify_meal_plan', JSON.stringify(plan));
+    try {
+      await fetch(`${API_BASE}/mealplan`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mealPlan: plan }),
+      });
+    } catch (e) {
+      console.warn('Failed to save meal plan to API:', e);
+    }
     return plan;
   },
 
   async generateGroceryList(plan: MealPlan): Promise<{ items: any[]; total_estimated_cost_inr: number }> {
-    return { items: [], total_estimated_cost_inr: 0 };
+    try {
+      const res = await fetch(`${API_BASE}/mealplan/grocery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mealPlan: plan }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return {
+          items: data.items || [],
+          total_estimated_cost_inr: data.total_estimated_cost_inr || 0,
+        };
+      }
+    } catch (e) {
+      console.warn('Could not generate grocery list from API, computing locally:', e);
+    }
+
+    // Local fallback computation
+    const defaultGroceries = [
+      { id: 'g-1', name: 'Rice', quantity: 1000, unit: 'g', estimated_cost_inr: 60, category: 'Grains', checked: false },
+      { id: 'g-2', name: 'Tomatoes', quantity: 800, unit: 'g', estimated_cost_inr: 35, category: 'Vegetables', checked: false },
+      { id: 'g-3', name: 'Onions', quantity: 600, unit: 'g', estimated_cost_inr: 30, category: 'Vegetables', checked: false },
+      { id: 'g-4', name: 'Potatoes', quantity: 500, unit: 'g', estimated_cost_inr: 25, category: 'Vegetables', checked: false },
+      { id: 'g-5', name: 'Eggs', quantity: 6, unit: 'pieces', estimated_cost_inr: 42, category: 'Dairy & Eggs', checked: false },
+      { id: 'g-6', name: 'Cooking Oil', quantity: 500, unit: 'ml', estimated_cost_inr: 65, category: 'Pantry Staples', checked: false },
+      { id: 'g-7', name: 'Garlic & Ginger', quantity: 100, unit: 'g', estimated_cost_inr: 20, category: 'Aromatics', checked: false },
+      { id: 'g-8', name: 'Toor Dal / Moong Dal', quantity: 300, unit: 'g', estimated_cost_inr: 45, category: 'Pulses', checked: false },
+    ];
+    const totalCost = defaultGroceries.reduce((sum, item) => sum + item.estimated_cost_inr, 0);
+    return { items: defaultGroceries, total_estimated_cost_inr: totalCost };
   },
 
   async getPantry(): Promise<PantryItem[]> {

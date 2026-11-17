@@ -59,6 +59,7 @@ export function AppContent() {
   // Saved recipes state
   const [savedRecipeIds, setSavedRecipeIds] = useState<string[]>([]);
   const [savedRecords, setSavedRecords] = useState<SavedRecipeRecord[]>([]);
+  const [allRecipes, setAllRecipes] = useState<Recipe[]>([]);
 
   // Auth modal
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -67,18 +68,24 @@ export function AppContent() {
     isGuest: true,
   });
 
-  // Load saved recipes on mount
+  // Load saved recipes and full recipe catalog on mount
   useEffect(() => {
-    const loadSaved = async () => {
+    const loadInitialData = async () => {
       try {
-        const records = await api.getSavedRecipes();
+        const [records, recipes] = await Promise.all([
+          api.getSavedRecipes(),
+          api.getAllRecipes(),
+        ]);
         setSavedRecords(records);
         setSavedRecipeIds(records.map((r) => r.recipeId));
+        if (recipes && recipes.length > 0) {
+          setAllRecipes(recipes);
+        }
       } catch (err) {
-        console.warn('Could not load saved recipes:', err);
+        console.warn('Could not load initial data:', err);
       }
     };
-    loadSaved();
+    loadInitialData();
   }, []);
 
   const handleToggleSave = async (recipeId: string) => {
@@ -166,7 +173,7 @@ export function AppContent() {
               path="/meal-plan"
               element={
                 <MealPlanPage
-                  allRecipes={[]}
+                  allRecipes={allRecipes}
                   onSelectRecipe={setSelectedRecipe}
                 />
               }
@@ -175,7 +182,7 @@ export function AppContent() {
               path="/leftovers"
               element={
                 <LeftoverRescuePage
-                  allRecipes={[]}
+                  allRecipes={allRecipes}
                   onSelectRecipe={setSelectedRecipe}
                   savedRecipeIds={savedRecipeIds}
                   onToggleSave={handleToggleSave}
@@ -188,7 +195,7 @@ export function AppContent() {
               path="/cuisines"
               element={
                 <CuisinesPage
-                  allRecipes={[]}
+                  allRecipes={allRecipes}
                   onSelectRecipe={setSelectedRecipe}
                   savedRecipeIds={savedRecipeIds}
                   onToggleSave={handleToggleSave}
@@ -199,7 +206,7 @@ export function AppContent() {
               path="/saved"
               element={
                 <SavedRecipesPage
-                  allRecipes={[]}
+                  allRecipes={allRecipes}
                   savedRecipeIds={savedRecipeIds}
                   onToggleSave={handleToggleSave}
                   onSelectRecipe={setSelectedRecipe}
