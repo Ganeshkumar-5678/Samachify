@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, BarChart2, Bookmark, ArrowRight, Sparkles, Check, ShoppingCart, Play } from 'lucide-react';
+import { Clock, Heart, Check, ArrowRight } from 'lucide-react';
 import { Recipe } from '../types';
 
 interface RecipeCardProps {
@@ -12,6 +12,7 @@ interface RecipeCardProps {
   onToggleSave?: (recipeId: string) => void;
   onSelectRecipe: (recipe: Recipe) => void;
   onStartCooking?: (recipe: Recipe) => void;
+  isBestMatch?: boolean;
 }
 
 export const RecipeCard: React.FC<RecipeCardProps> = ({
@@ -24,6 +25,7 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
   onToggleSave,
   onSelectRecipe,
   onStartCooking,
+  isBestMatch,
 }) => {
   const imageUrl =
     recipe.imageUrl ||
@@ -32,7 +34,7 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
 
   const totalTime =
     (recipe.prepTimeMinutes || recipe.prep_time_minutes || 10) +
-    (recipe.cookTimeMinutes || recipe.cook_time_minutes || 15);
+    (recipe.cookTimeMinutes || recipe.cook_time_minutes || 10);
 
   const cost =
     recipe.estimatedCostInr ||
@@ -50,152 +52,109 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
     }
   };
 
-  const handleStartCookingClick = (e: React.MouseEvent) => {
+  const handleViewRecipeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onStartCooking) {
-      onStartCooking(recipe);
-    } else {
-      onSelectRecipe(recipe);
-    }
+    onSelectRecipe(recipe);
   };
 
-  const isBestMatch = matchPercentage !== undefined && matchPercentage >= 80;
+  // Determine if best match flag should show
+  const showBestMatch = isBestMatch || (matchPercentage !== undefined && matchPercentage >= 85);
+
+  // Status indicator text: "Uses your ingredients" vs "Uses most ingredients"
+  const usesYourIngredients = canCookWithoutShopping || (matchPercentage !== undefined && matchPercentage >= 80);
 
   return (
     <div
       onClick={handleCardClick}
-      className="group relative bg-white rounded-3xl overflow-hidden border-2 border-[#FDE68A] shadow-sm hover:shadow-xl hover:border-[#CA8A04] cursor-pointer flex flex-col justify-between transition-all duration-300 transform hover:-translate-y-1"
+      className="group relative bg-white rounded-3xl overflow-hidden border border-[#ECE7DE] shadow-xs hover:shadow-xl cursor-pointer flex flex-col justify-between transition-all duration-300 transform hover:-translate-y-1"
     >
-      {/* Top Image & Floating Badges */}
-      <div className="relative h-48 w-full overflow-hidden bg-[#FEFCE8]">
+      {/* Top Image Container */}
+      <div className="relative h-48 w-full overflow-hidden bg-[#F5EFE6]">
         <img
           src={imageUrl}
           alt={recipe.title}
           loading="lazy"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          onError={(e) => {
+            // High quality fallback
+            (e.currentTarget as HTMLImageElement).src =
+              'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80';
+          }}
         />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+        {/* Subtle Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none" />
 
-        {/* Save button */}
+        {/* Top-Left Best Match Pill */}
+        {showBestMatch && (
+          <div className="absolute top-3 left-3 z-10">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#E67E22] text-white text-[11px] font-bold shadow-md tracking-wide">
+              <span>★</span>
+              <span>Best Match</span>
+            </span>
+          </div>
+        )}
+
+        {/* Top-Right Favorite / Save Heart Icon */}
         <button
           type="button"
           onClick={handleSaveClick}
-          aria-label={isSaved ? 'Remove from saved recipes' : 'Save recipe'}
-          className={`absolute top-3 right-3 p-2.5 rounded-full backdrop-blur-md transition-all shadow-md ${
+          aria-label={isSaved ? 'Remove from saved' : 'Save recipe'}
+          className={`absolute top-3 right-3 z-10 p-2 rounded-full backdrop-blur-md transition-all shadow-sm ${
             isSaved
-              ? 'bg-[#D97706] text-white'
-              : 'bg-white/90 hover:bg-white text-[#854D0E] hover:scale-110'
+              ? 'bg-[#E67E22] text-white scale-105'
+              : 'bg-black/30 hover:bg-black/50 text-white hover:scale-110'
           }`}
         >
-          <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
+          <Heart
+            className={`w-4 h-4 transition-transform ${
+              isSaved ? 'fill-white text-white' : 'stroke-[2.2]'
+            }`}
+          />
         </button>
-
-        {/* Match / Ready to Cook Pill */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1 items-start">
-          {(recipe.provenance === 'ai_generated' || recipe.source === 'ai_generated') && (
-            <span className="px-2.5 py-0.5 rounded-full bg-amber-700/90 backdrop-blur-sm text-white text-[10px] font-extrabold shadow-md flex items-center gap-1 border border-amber-400/40">
-              <Sparkles className="w-3 h-3 text-[#FACC15]" />
-              <span>Groq AI Crafted</span>
-            </span>
-          )}
-          {canCookWithoutShopping ? (
-            <span className="px-3 py-1 rounded-full bg-emerald-600 text-white text-[11px] font-extrabold tracking-wide shadow-md flex items-center gap-1">
-              <Check className="w-3.5 h-3.5 stroke-[3]" />
-              <span>Zero Shopping Needed</span>
-            </span>
-          ) : isBestMatch ? (
-            <span className="px-3 py-1 rounded-full bg-[#FACC15] text-[#361E04] text-[11px] font-extrabold tracking-wide shadow-md flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{matchPercentage}% Match</span>
-            </span>
-          ) : matchPercentage !== undefined && matchPercentage > 0 ? (
-            <span className="px-2.5 py-1 rounded-full bg-[#CA8A04] text-white text-[11px] font-bold shadow-md">
-              {matchPercentage}% Match
-            </span>
-          ) : null}
-        </div>
-
-        {/* Cuisine Badge */}
-        <div className="absolute bottom-3 left-3 px-2.5 py-0.5 rounded-md bg-white/95 backdrop-blur-sm text-[11px] font-bold text-[#854D0E]">
-          {recipe.cuisine}
-        </div>
       </div>
 
-      {/* Content Body */}
-      <div className="p-5 flex flex-col flex-1 justify-between space-y-3">
-        <div className="space-y-2">
-          <h3 className="font-extrabold text-lg text-[#361E04] tracking-tight group-hover:text-[#CA8A04] transition-colors line-clamp-1">
+      {/* Card Content */}
+      <div className="p-5 flex flex-col flex-1 justify-between">
+        <div>
+          {/* Recipe Name */}
+          <h3 className="font-bold text-[17px] text-[#11241A] tracking-tight line-clamp-1 group-hover:text-[#0B3B24] transition-colors">
             {recipe.title}
           </h3>
 
-          {/* Quick Metrics */}
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#785E3A]">
-            <span className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-[#D97706]" />
-              {totalTime} mins
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-1">
-              <BarChart2 className="w-3.5 h-3.5 text-[#CA8A04]" />
-              {recipe.difficulty}
-            </span>
-            <span>•</span>
-            <span className="flex items-center text-[#854D0E] font-bold">
-              ₹{Math.round(cost)}
-            </span>
-            <span>•</span>
-            <span className="text-[11px]">Serves {recipe.servings}</span>
+          {/* Cooking Time, Difficulty & Estimated Cost */}
+          <div className="flex items-center gap-1.5 text-xs text-[#5D6F65] font-medium mt-1.5">
+            <Clock className="w-3.5 h-3.5 shrink-0 text-[#5D6F65]" />
+            <span>{totalTime} mins</span>
+            <span className="text-[#A8B5AE]">•</span>
+            <span>{recipe.difficulty}</span>
+            <span className="text-[#A8B5AE]">•</span>
+            <span className="font-bold text-[#11241A]">₹{cost}</span>
           </div>
 
-          {/* Ingredient status */}
-          <div className="flex items-center gap-1.5 text-xs font-bold">
-            {canCookWithoutShopping ? (
-              <span className="text-[#854D0E] flex items-center gap-1">
-                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Uses all your available ingredients</span>
-              </span>
-            ) : (
-              <span className="text-[#785E3A] text-[11px]">
-                {matchedIngredients.length} ingredients matched
-              </span>
-            )}
+          {/* Available Ingredients Indicator Pill */}
+          <div className="mt-3">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#FCEBD8] text-[#B95A00] text-xs font-bold">
+              <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>{usesYourIngredients ? 'Uses your ingredients' : 'Uses most ingredients'}</span>
+            </span>
           </div>
 
-          <p className="text-xs text-[#785E3A] line-clamp-2 leading-relaxed">
-            {recipe.description}
+          {/* Short Description */}
+          <p className="text-xs text-[#63756C] mt-2.5 line-clamp-2 leading-relaxed">
+            {recipe.description || 'A quick and delicious dish prepared with fresh ingredients.'}
           </p>
-
-          {/* Missing Ingredients Preview */}
-          {missingIngredients.length > 0 && !canCookWithoutShopping && (
-            <div className="pt-1 flex items-center gap-1.5 text-[11px] text-amber-950 bg-amber-50 px-2.5 py-1.5 rounded-xl border border-amber-200">
-              <ShoppingCart className="w-3.5 h-3.5 text-[#D97706] shrink-0" />
-              <span className="truncate">
-                Need: {missingIngredients.slice(0, 2).map((m) => m.name).join(', ')}
-                {missingIngredients.length > 2 && ` +${missingIngredients.length - 2} more`}
-              </span>
-            </div>
-          )}
         </div>
 
-        {/* Action Buttons: View Recipe and Start Cooking */}
-        <div className="pt-2 grid grid-cols-2 gap-2">
+        {/* Functional View Recipe Button */}
+        <div className="mt-4 pt-2">
           <button
             type="button"
-            onClick={handleCardClick}
-            className="py-2.5 px-3 rounded-xl border border-[#FDE68A] hover:bg-[#FEFCE8] text-[#854D0E] text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
+            onClick={handleViewRecipeClick}
+            className="w-full py-2.5 px-4 rounded-xl bg-[#0B3B24] hover:bg-[#072818] active:bg-[#051F13] text-white text-sm font-bold flex items-center justify-center gap-1.5 shadow-xs hover:shadow-md transition-all duration-200"
           >
             <span>View Recipe</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-
-          <button
-            type="button"
-            onClick={handleStartCookingClick}
-            className="py-2.5 px-3 rounded-xl bg-[#CA8A04] hover:bg-[#854D0E] text-white text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all shadow-sm group-hover:shadow"
-          >
-            <Play className="w-3.5 h-3.5 fill-current text-[#FEF08A]" />
-            <span>Cook Now</span>
+            <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </div>

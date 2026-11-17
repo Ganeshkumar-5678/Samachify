@@ -16,6 +16,7 @@ export interface RecipeIngredient {
   isOptional: boolean;
   substitutions: string[];
   notes?: string;
+  estimated_cost_inr?: number;
 }
 
 export type VisualType = 'chop' | 'heat_oil' | 'temper_spices' | 'saute' | 'add_ingredients' | 'boil' | 'simmer' | 'steam' | 'blend' | 'garnish' | 'serve';

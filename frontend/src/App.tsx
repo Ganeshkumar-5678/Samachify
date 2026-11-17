@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import { Navbar } from './components/Navbar';
-import { Footer } from './components/Footer';
+import { Sidebar } from './components/Sidebar';
+import { TopHeader } from './components/TopHeader';
 import { RecipeDetailModal } from './components/RecipeDetailModal';
 import { InteractiveCookingScreen } from './components/InteractiveCookingScreen';
 import { AuthModal } from './components/AuthModal';
@@ -19,8 +19,10 @@ import { api } from './services/api';
 
 const DEFAULT_INGREDIENTS: UserIngredient[] = [
   { name: 'Rice', state: 'raw' },
-  { name: 'Tomato', state: 'raw' },
   { name: 'Onion', state: 'raw' },
+  { name: 'Tomato', state: 'raw' },
+  { name: 'Potato', state: 'raw' },
+  { name: 'Chili Powder', state: 'raw' },
 ];
 
 const DEFAULT_STAPLES = [
@@ -39,6 +41,9 @@ const DEFAULT_EQUIPMENT = [
 
 export function AppContent() {
   const navigate = useNavigate();
+
+  // Mobile sidebar toggle
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Kitchen State preserved across navigation
   const [userIngredients, setUserIngredients] = useState<UserIngredient[]>(DEFAULT_INGREDIENTS);
@@ -82,7 +87,6 @@ export function AppContent() {
       setSavedRecords((prev) => prev.filter((r) => r.recipeId !== recipeId));
     } else {
       setSavedRecipeIds((prev) => [...prev, recipeId]);
-      // If selected recipe matches, save to backend
       const target = selectedRecipe && selectedRecipe.id === recipeId ? selectedRecipe : cookingRecipe;
       if (target) {
         try {
@@ -108,96 +112,103 @@ export function AppContent() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#FAF7F0] text-[#242820]">
-      {/* Global Navigation */}
-      <Navbar
-        onOpenAuth={() => setAuthModalOpen(true)}
-        user={user}
+    <div className="min-h-screen bg-[#FBF8F2] text-[#11241A] flex flex-col lg:flex-row antialiased font-sans">
+      {/* 1. Left Sidebar Navigation */}
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
         savedCount={savedRecipeIds.length}
       />
 
-      {/* Main Routed Content */}
-      <main className="flex-1">
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <Home
-                recipes={[]}
-                onSelectRecipe={setSelectedRecipe}
-                onStartCooking={handleStartCooking}
-                savedRecipeIds={savedRecipeIds}
-                onToggleSave={handleToggleSave}
-                userIngredients={userIngredients}
-                onUserIngredientsChange={setUserIngredients}
-                pantryStaples={pantryStaples}
-                onPantryStaplesChange={setPantryStaples}
-                equipment={equipment}
-                onEquipmentChange={setEquipment}
-              />
-            }
-          />
-          <Route
-            path="/recipes"
-            element={
-              <Recipes
-                onSelectRecipe={setSelectedRecipe}
-                onStartCooking={handleStartCooking}
-                savedRecipeIds={savedRecipeIds}
-                onToggleSave={handleToggleSave}
-                initialIngredients={userIngredients}
-              />
-            }
-          />
-          <Route
-            path="/meal-plan"
-            element={
-              <MealPlanPage
-                allRecipes={[]}
-                onSelectRecipe={setSelectedRecipe}
-              />
-            }
-          />
-          <Route
-            path="/leftovers"
-            element={
-              <LeftoverRescuePage
-                allRecipes={[]}
-                onSelectRecipe={setSelectedRecipe}
-                savedRecipeIds={savedRecipeIds}
-                onToggleSave={handleToggleSave}
-                onOpenPhotoModal={() => navigate('/recipes')}
-              />
-            }
-          />
-          <Route path="/pantry" element={<PantryPage />} />
-          <Route
-            path="/cuisines"
-            element={
-              <CuisinesPage
-                allRecipes={[]}
-                onSelectRecipe={setSelectedRecipe}
-                savedRecipeIds={savedRecipeIds}
-                onToggleSave={handleToggleSave}
-              />
-            }
-          />
-          <Route
-            path="/saved"
-            element={
-              <SavedRecipesPage
-                allRecipes={[]}
-                savedRecipeIds={savedRecipeIds}
-                onToggleSave={handleToggleSave}
-                onSelectRecipe={setSelectedRecipe}
-              />
-            }
-          />
-        </Routes>
-      </main>
+      {/* 2. Main Content Layout */}
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-64 xl:pl-72 transition-all">
+        {/* Top Header with Search and Profile Avatar */}
+        <TopHeader
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+          onOpenAuth={() => setAuthModalOpen(true)}
+          user={user}
+        />
 
-      {/* Global Footer */}
-      <Footer />
+        {/* Main Routed Page Content */}
+        <main className="flex-1 px-4 sm:px-6 lg:px-10 py-5 max-w-[1500px] w-full mx-auto">
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <Home
+                  recipes={[]}
+                  onSelectRecipe={setSelectedRecipe}
+                  onStartCooking={handleStartCooking}
+                  savedRecipeIds={savedRecipeIds}
+                  onToggleSave={handleToggleSave}
+                  userIngredients={userIngredients}
+                  onUserIngredientsChange={setUserIngredients}
+                  pantryStaples={pantryStaples}
+                  onPantryStaplesChange={setPantryStaples}
+                  equipment={equipment}
+                  onEquipmentChange={setEquipment}
+                />
+              }
+            />
+            <Route
+              path="/recipes"
+              element={
+                <Recipes
+                  onSelectRecipe={setSelectedRecipe}
+                  onStartCooking={handleStartCooking}
+                  savedRecipeIds={savedRecipeIds}
+                  onToggleSave={handleToggleSave}
+                  initialIngredients={userIngredients}
+                />
+              }
+            />
+            <Route
+              path="/meal-plan"
+              element={
+                <MealPlanPage
+                  allRecipes={[]}
+                  onSelectRecipe={setSelectedRecipe}
+                />
+              }
+            />
+            <Route
+              path="/leftovers"
+              element={
+                <LeftoverRescuePage
+                  allRecipes={[]}
+                  onSelectRecipe={setSelectedRecipe}
+                  savedRecipeIds={savedRecipeIds}
+                  onToggleSave={handleToggleSave}
+                  onOpenPhotoModal={() => navigate('/recipes')}
+                />
+              }
+            />
+            <Route path="/pantry" element={<PantryPage />} />
+            <Route
+              path="/cuisines"
+              element={
+                <CuisinesPage
+                  allRecipes={[]}
+                  onSelectRecipe={setSelectedRecipe}
+                  savedRecipeIds={savedRecipeIds}
+                  onToggleSave={handleToggleSave}
+                />
+              }
+            />
+            <Route
+              path="/saved"
+              element={
+                <SavedRecipesPage
+                  allRecipes={[]}
+                  savedRecipeIds={savedRecipeIds}
+                  onToggleSave={handleToggleSave}
+                  onSelectRecipe={setSelectedRecipe}
+                />
+              }
+            />
+          </Routes>
+        </main>
+      </div>
 
       {/* Recipe Detail Modal */}
       <RecipeDetailModal

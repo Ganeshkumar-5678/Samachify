@@ -695,5 +695,290 @@ export const CURATED_RECIPES: Recipe[] = [
       'Reserving a splash of starchy cooking water creates a glossy emulsion that clings to the pasta.'
     ],
     estimatedCostInr: 50
+  },
+
+  // 8. Veg Fried Rice
+  {
+    id: 'veg-fried-rice',
+    title: 'Veg Fried Rice',
+    description: 'A quick and tasty fried rice with fresh veggies.',
+    cuisine: 'Indo-Chinese',
+    region: 'Asian Fusion',
+    mealType: 'Lunch',
+    provenance: 'curated',
+    prepTimeMinutes: 10,
+    cookTimeMinutes: 10,
+    difficulty: 'Easy',
+    servings: 2,
+    equipment: ['Wok / Wide Skillet', 'Spatula'],
+    ingredients: [
+      { name: 'Rice', quantity: 250, unit: 'g', isOptional: false, substitutions: ['Jasmine Rice', 'Basmati Rice'] },
+      { name: 'Onion', quantity: 100, unit: 'g', isOptional: false, substitutions: ['Spring Onion'] },
+      { name: 'Chili Powder', quantity: 1, unit: 'tsp', isOptional: false, substitutions: ['Black Pepper', 'Green Chilli'] },
+      { name: 'Garlic', quantity: 4, unit: 'cloves', isOptional: true, substitutions: ['Garlic Paste'], estimated_cost_inr: 5 },
+      { name: 'Ginger', quantity: 1, unit: 'inch', isOptional: true, substitutions: ['Ginger Paste'], estimated_cost_inr: 5 },
+      { name: 'Cooking Oil', quantity: 2, unit: 'tbsp', isOptional: true, substitutions: ['Sesame Oil'], estimated_cost_inr: 30 },
+      { name: 'Salt', quantity: 1, unit: 'tsp', isOptional: false, substitutions: [] }
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        instruction: 'Finely dice onions, garlic, and ginger.',
+        visualType: 'chop',
+        ingredients: [{ name: 'Onion', quantity: 100, unit: 'g' }, { name: 'Garlic', quantity: 4, unit: 'cloves' }],
+        equipment: ['Chef Knife', 'Cutting Board'],
+        durationMinutes: 3,
+        donenessCue: 'Uniformly minced vegetables'
+      },
+      {
+        stepNumber: 2,
+        instruction: 'Heat 2 tbsp oil in wok over high flame. Add onions, garlic, and ginger. Sauté for 2 minutes.',
+        visualType: 'saute',
+        ingredients: [{ name: 'Cooking Oil', quantity: 2, unit: 'tbsp' }, { name: 'Onion', quantity: 100, unit: 'g' }],
+        equipment: ['Wok / Wide Skillet'],
+        heatLevel: 'high',
+        durationMinutes: 2,
+        donenessCue: 'Aromatics are sizzling and lightly browned'
+      },
+      {
+        stepNumber: 3,
+        instruction: 'Toss in cooked rice, chili powder, and salt. Stir-fry briskly on high flame for 4 minutes.',
+        visualType: 'saute',
+        ingredients: [{ name: 'Rice', quantity: 250, unit: 'g' }, { name: 'Chili Powder', quantity: 1, unit: 'tsp' }, { name: 'Salt', quantity: 1, unit: 'tsp' }],
+        equipment: ['Wok / Wide Skillet', 'Spatula'],
+        heatLevel: 'high',
+        durationMinutes: 4,
+        timerSeconds: 240,
+        donenessCue: 'Every grain coated and fragrant'
+      },
+      {
+        stepNumber: 4,
+        instruction: 'Serve hot in a bowl garnished with sliced herbs.',
+        visualType: 'serve',
+        ingredients: [],
+        equipment: ['Serving Bowl'],
+        heatLevel: 'off',
+        donenessCue: 'Steaming delicious fried rice'
+      }
+    ],
+    dietaryLabels: ['Vegetarian', 'Vegan', 'Under 20 Minutes'],
+    allergenInfo: [],
+    safetyAdvice: 'Use chilled day-old cooked rice for firm, non-sticky grains.',
+    storageAdvice: 'Refrigerate in an airtight container for up to 2 days.',
+    imageUrl: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80',
+    tips: ['High heat stir-frying imparts authentic smoky flavor.'],
+    estimatedCostInr: 45
+  },
+
+  // 9. Tomato Egg Curry
+  {
+    id: 'tomato-egg-curry',
+    title: 'Tomato Egg Curry',
+    description: 'Rich, flavorful curry with eggs and tomatoes.',
+    cuisine: 'South Indian',
+    region: 'South India',
+    mealType: 'Dinner',
+    provenance: 'curated',
+    prepTimeMinutes: 10,
+    cookTimeMinutes: 15,
+    difficulty: 'Medium',
+    servings: 2,
+    equipment: ['Kadai / Heavy Skillet', 'Spatula'],
+    ingredients: [
+      { name: 'Tomato', quantity: 250, unit: 'g', isOptional: false, substitutions: ['Crushed Canned Tomatoes'] },
+      { name: 'Onion', quantity: 120, unit: 'g', isOptional: false, substitutions: ['Shallots'] },
+      { name: 'Eggs', quantity: 3, unit: 'pieces', isOptional: false, substitutions: ['Tofu', 'Paneer'], estimated_cost_inr: 18 },
+      { name: 'Chili Powder', quantity: 1, unit: 'tsp', isOptional: false, substitutions: ['Paprika'] },
+      { name: 'Turmeric Powder', quantity: 0.5, unit: 'tsp', isOptional: false, substitutions: [] },
+      { name: 'Garlic', quantity: 4, unit: 'cloves', isOptional: true, substitutions: [], estimated_cost_inr: 5 },
+      { name: 'Ginger', quantity: 1, unit: 'inch', isOptional: true, substitutions: [], estimated_cost_inr: 5 },
+      { name: 'Cooking Oil', quantity: 2, unit: 'tbsp', isOptional: true, substitutions: [], estimated_cost_inr: 30 },
+      { name: 'Salt', quantity: 1, unit: 'tsp', isOptional: false, substitutions: [] }
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        instruction: 'Boil eggs for 9 minutes, peel and make 2 shallow slits along each egg.',
+        visualType: 'boil',
+        ingredients: [{ name: 'Eggs', quantity: 3, unit: 'pieces' }],
+        equipment: ['Saucepan'],
+        durationMinutes: 9,
+        donenessCue: 'Hard boiled eggs peeled smoothly'
+      },
+      {
+        stepNumber: 2,
+        instruction: 'Heat oil in kadai, sauté chopped onions, ginger, and garlic until golden brown.',
+        visualType: 'saute',
+        ingredients: [{ name: 'Onion', quantity: 120, unit: 'g' }, { name: 'Cooking Oil', quantity: 2, unit: 'tbsp' }],
+        equipment: ['Kadai / Heavy Skillet'],
+        heatLevel: 'medium',
+        durationMinutes: 4,
+        donenessCue: 'Onions caramelized golden'
+      },
+      {
+        stepNumber: 3,
+        instruction: 'Add diced tomatoes, turmeric, chili powder, and salt. Simmer until oil separates.',
+        visualType: 'simmer',
+        ingredients: [{ name: 'Tomato', quantity: 250, unit: 'g' }, { name: 'Chili Powder', quantity: 1, unit: 'tsp' }, { name: 'Turmeric Powder', quantity: 0.5, unit: 'tsp' }],
+        equipment: ['Kadai / Heavy Skillet'],
+        heatLevel: 'medium',
+        durationMinutes: 6,
+        donenessCue: 'Glossy, aromatic tomato masala gravy'
+      },
+      {
+        stepNumber: 4,
+        instruction: 'Gently slip boiled eggs into the simmering sauce. Baste with gravy for 2 minutes and serve.',
+        visualType: 'simmer',
+        ingredients: [{ name: 'Eggs', quantity: 3, unit: 'pieces' }],
+        equipment: ['Kadai / Heavy Skillet'],
+        heatLevel: 'low',
+        durationMinutes: 2,
+        donenessCue: 'Eggs coated in thick tomato curry'
+      }
+    ],
+    dietaryLabels: ['High-Protein', 'Gluten-Free'],
+    allergenInfo: ['Eggs'],
+    safetyAdvice: 'Ensure eggs are cooked through.',
+    storageAdvice: 'Refrigerate for up to 2 days.',
+    imageUrl: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=80',
+    tips: ['Slitting eggs allows the spicy tomato gravy to penetrate inside.'],
+    estimatedCostInr: 55
+  },
+
+  // 10. Onion Tomato Omelette
+  {
+    id: 'onion-tomato-omelette',
+    title: 'Onion Tomato Omelette',
+    description: 'Quick and healthy omelette with onions and tomatoes.',
+    cuisine: 'Indian',
+    region: 'South India',
+    mealType: 'Breakfast',
+    provenance: 'curated',
+    prepTimeMinutes: 5,
+    cookTimeMinutes: 5,
+    difficulty: 'Easy',
+    servings: 1,
+    equipment: ['Tawa / Non-stick Pan', 'Whisk'],
+    ingredients: [
+      { name: 'Eggs', quantity: 2, unit: 'pieces', isOptional: false, substitutions: ['Besan (Chickpea Flour)'], estimated_cost_inr: 12 },
+      { name: 'Onion', quantity: 80, unit: 'g', isOptional: false, substitutions: [] },
+      { name: 'Tomato', quantity: 80, unit: 'g', isOptional: false, substitutions: [] },
+      { name: 'Chili Powder', quantity: 0.5, unit: 'tsp', isOptional: false, substitutions: ['Black Pepper'] },
+      { name: 'Cooking Oil', quantity: 1, unit: 'tbsp', isOptional: true, substitutions: ['Butter'], estimated_cost_inr: 30 },
+      { name: 'Salt', quantity: 0.5, unit: 'tsp', isOptional: false, substitutions: [] }
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        instruction: 'Whisk eggs with finely diced onions, tomatoes, chili powder, and salt in a bowl.',
+        visualType: 'chop',
+        ingredients: [{ name: 'Eggs', quantity: 2, unit: 'pieces' }, { name: 'Onion', quantity: 80, unit: 'g' }, { name: 'Tomato', quantity: 80, unit: 'g' }],
+        equipment: ['Mixing Bowl', 'Whisk'],
+        durationMinutes: 2,
+        donenessCue: 'Frothy, well-incorporated egg mixture'
+      },
+      {
+        stepNumber: 2,
+        instruction: 'Heat 1 tbsp oil in a pan over medium heat. Pour in egg mixture, spreading evenly.',
+        visualType: 'saute',
+        ingredients: [{ name: 'Cooking Oil', quantity: 1, unit: 'tbsp' }],
+        equipment: ['Tawa / Non-stick Pan'],
+        heatLevel: 'medium',
+        durationMinutes: 2,
+        donenessCue: 'Bottom is golden brown and edges set'
+      },
+      {
+        stepNumber: 3,
+        instruction: 'Flip gently and cook other side for 1 minute until fluffy and cooked through.',
+        visualType: 'saute',
+        ingredients: [],
+        equipment: ['Tawa / Non-stick Pan', 'Spatula'],
+        heatLevel: 'medium',
+        durationMinutes: 1,
+        donenessCue: 'Both sides golden and soft'
+      }
+    ],
+    dietaryLabels: ['High-Protein', 'Quick Breakfast', 'Under 10 Minutes'],
+    allergenInfo: ['Eggs'],
+    safetyAdvice: 'Cook on medium heat so tomatoes soften without burning eggs.',
+    storageAdvice: 'Best enjoyed immediately fresh off the pan.',
+    imageUrl: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80',
+    tips: ['Dicing onions and tomatoes very fine ensures even cooking.'],
+    estimatedCostInr: 35
+  },
+
+  // 11. Potato Curry
+  {
+    id: 'potato-curry',
+    title: 'Potato Curry',
+    description: 'Spicy and flavorful potato curry.',
+    cuisine: 'South Indian',
+    region: 'South India',
+    mealType: 'Dinner',
+    provenance: 'curated',
+    prepTimeMinutes: 10,
+    cookTimeMinutes: 20,
+    difficulty: 'Medium',
+    servings: 2,
+    equipment: ['Pressure Cooker / Kadai', 'Spatula'],
+    ingredients: [
+      { name: 'Potato', quantity: 300, unit: 'g', isOptional: false, substitutions: ['Sweet Potato'] },
+      { name: 'Onion', quantity: 100, unit: 'g', isOptional: false, substitutions: [] },
+      { name: 'Tomato', quantity: 150, unit: 'g', isOptional: false, substitutions: [] },
+      { name: 'Chili Powder', quantity: 1, unit: 'tsp', isOptional: false, substitutions: [] },
+      { name: 'Turmeric Powder', quantity: 0.5, unit: 'tsp', isOptional: false, substitutions: [] },
+      { name: 'Garlic', quantity: 3, unit: 'cloves', isOptional: true, substitutions: [], estimated_cost_inr: 5 },
+      { name: 'Ginger', quantity: 1, unit: 'inch', isOptional: true, substitutions: [], estimated_cost_inr: 5 },
+      { name: 'Cooking Oil', quantity: 2, unit: 'tbsp', isOptional: true, substitutions: [], estimated_cost_inr: 30 },
+      { name: 'Salt', quantity: 1, unit: 'tsp', isOptional: false, substitutions: [] }
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        instruction: 'Peel and cube 300g potatoes into bite-sized pieces. Dice onions and tomatoes.',
+        visualType: 'chop',
+        ingredients: [{ name: 'Potato', quantity: 300, unit: 'g' }, { name: 'Onion', quantity: 100, unit: 'g' }, { name: 'Tomato', quantity: 150, unit: 'g' }],
+        equipment: ['Chef Knife', 'Cutting Board'],
+        durationMinutes: 4,
+        donenessCue: 'Potatoes cubed uniformly'
+      },
+      {
+        stepNumber: 2,
+        instruction: 'Heat 2 tbsp oil in pan. Sauté onions, garlic, and ginger for 3 minutes until translucent.',
+        visualType: 'saute',
+        ingredients: [{ name: 'Onion', quantity: 100, unit: 'g' }, { name: 'Cooking Oil', quantity: 2, unit: 'tbsp' }],
+        equipment: ['Kadai / Heavy Skillet'],
+        heatLevel: 'medium',
+        durationMinutes: 3,
+        donenessCue: 'Onions soft and sweet'
+      },
+      {
+        stepNumber: 3,
+        instruction: 'Add cubed potatoes, tomatoes, chili powder, turmeric, salt, and 1 cup water. Simmer covered for 12 minutes.',
+        visualType: 'simmer',
+        ingredients: [{ name: 'Potato', quantity: 300, unit: 'g' }, { name: 'Tomato', quantity: 150, unit: 'g' }, { name: 'Chili Powder', quantity: 1, unit: 'tsp' }],
+        equipment: ['Kadai / Heavy Skillet'],
+        heatLevel: 'medium',
+        durationMinutes: 12,
+        timerSeconds: 720,
+        donenessCue: 'Potatoes fork-tender and curry rich and thick'
+      },
+      {
+        stepNumber: 4,
+        instruction: 'Lightly crush 2 potato cubes to thicken the gravy, stir gently, and serve warm with rice or roti.',
+        visualType: 'serve',
+        ingredients: [],
+        equipment: ['Serving Bowl'],
+        heatLevel: 'off',
+        donenessCue: 'Aromatic, comforting potato curry'
+      }
+    ],
+    dietaryLabels: ['Vegetarian', 'Vegan', 'Comfort Food'],
+    allergenInfo: [],
+    safetyAdvice: 'Ensure potatoes are fully fork-tender before serving.',
+    storageAdvice: 'Refrigerate in a sealed container for up to 3 days.',
+    imageUrl: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=800&q=80',
+    tips: ['Crushing a few cooked potato pieces gives the curry a naturally thick, luscious texture.'],
+    estimatedCostInr: 60
   }
 ];
